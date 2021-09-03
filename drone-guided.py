@@ -117,7 +117,7 @@ def get_relative_dNorth_dEast(color):
     headingAngle = vehicle.heading
     altitude = vehicle.location.global_relative_frame.alt
     Threshold = 1000
-    pixel = (altitude*6,48-e4)/3
+    pixel = (altitude*6.48-e4)/3
     if color == "blue":
         lower_color = np.array([100,50,50])
         upper_color = np.array([130,255,255])
