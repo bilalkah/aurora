@@ -21,9 +21,14 @@ args = parser.parse_args()
 
 connection_string = args.connect
 
+vidcap = cv2.VideoCapture(0)
+success,imagedisp = vidcap.read()
+height, width, layers = imagedisp.shape
+
 # Connect to the Vehicle
 print('Connecting to vehicle on: %s' % connection_string)
 vehicle = connect(connection_string, wait_ready=True)
+
 
 
 def arm_and_takeoff(aTargetAltitude):
@@ -106,59 +111,80 @@ def goto(dNorth, dEast, gotoFunction=vehicle.simple_goto):
     
 
 
-def get_relative_dNorth_dEast(objY,objX,center):
+def get_relative_dNorth_dEast(color):
+    success,imagedisp = vidcap.read()
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
-    (centerY,centerX) = center
-    lengthX = abs(centerX-objX)
-    lengthY = abs(centerY-objY)
-    #print(lengthX,lengthY)
-    radianOfObj = math.atan2(lengthY, lengthX)
-    angleOfObj = math.degrees(radianOfObj)
-    hipotenuse = 5#math.sqrt(lengthX**2+lengthY**2)
-
-    #print("Target angle: ", angleOfObj)
+    altitude = vehicle.location.global_relative_frame.alt
+    Threshold = 1000
+    pixel = (altitude*6,48-e4)/3
+    if color == "blue":
+        lower_color = np.array([100,50,50])
+        upper_color = np.array([130,255,255])
+    elif color == "red":
+        lower_color = np.array([160,50,50])
+        upper_color = np.array([180,255,255])
+        
+    while success:
+        hsv = cv2.cvtColor(imagedisp, cv2.COLOR_BGR2HSV)
+        # Threshold the HSV image to get only blue colors
+        mask = cv2.inRange (hsv, lower_color, upper_color)
+        bluecnts = cv2.findContours(mask.copy(),
+                              cv2.RETR_EXTERNAL,
+                              cv2.CHAIN_APPROX_SIMPLE)[-2]
+        x,y=0,0
+        if len(bluecnts)>0:
+            blue_area = max(bluecnts, key=cv2.contourArea)
+            (xg,yg,wg,hg) = cv2.boundingRect(blue_area)
+            print(color,wg*hg,pixel*pixel*0.95)
+            if wg*hg >= pixel*pixel*0.95:
+                (centerY,centerX) = imagedisp.shape[:2]
+                centerY //= 2
+                centerX //= 2
+                objX = xg + wg/2
+                objY = yg + hg/2
+                lengthX = abs(centerX-objX)
+                lengthY = abs(centerY-objY)
+                radianOfObj = math.atan2(lengthY, lengthX)
+                angleOfObj = math.degrees(radianOfObj)
+                hipotenuse = math.sqrt(lengthX**2+lengthY**2)*altitude
+                
+                dNorth , dEast = 0,0
+                if centerX < objX and centerY > objY:
+                    angleOfObj = 90 - angleOfObj
+                elif centerX < objX and centerY <= objY:
+                    angleOfObj = 90 + angleOfObj
+                elif centerX >= objX and centerY < objY:
+                    angleOfObj = 270 - angleOfObj
+                elif centerX > objX and centerY >= objY:
+                    angleOfObj = 270 + angleOfObj
+                    
+                NorthToTargetAngle = angleOfObj + headingAngle
+                NorthToTargetAngle %= 360
+                
+                if NorthToTargetAngle > 0 and NorthToTargetAngle <= 90:
+                    dNorth = 1
+                    dEast = 1
+                    NorthToTargetAngle = 90 - NorthToTargetAngle
+                elif NorthToTargetAngle > 90 and NorthToTargetAngle <= 180:
+                    dNorth = -1
+                    dEast = 1
+                    NorthToTargetAngle = NorthToTargetAngle - 90  
+                elif NorthToTargetAngle > 180 and NorthToTargetAngle <= 270:
+                    dNorth = -1
+                    dEast = -1
+                    NorthToTargetAngle = 270 - NorthToTargetAngle
+                elif NorthToTargetAngle > 270 and NorthToTargetAngle <= 360:
+                    dNorth = 1
+                    dEast = -1
+                    NorthToTargetAngle = NorthToTargetAngle - 270
+                dNorth *= hipotenuse*math.sin(math.radians(NorthToTargetAngle))
+                dEast *= hipotenuse*math.cos(math.radians(NorthToTargetAngle))
+                targetLocation = get_location_metres(currentLocation, dNorth, dEast)
+                return targetLocation
+            else:
+                return None
     
-    dNorth , dEast = 0,0
-    if centerX < objX and centerY > objY:
-        angleOfObj = 90 - angleOfObj
-    elif centerX < objX and centerY <= objY:
-        angleOfObj = 90 + angleOfObj
-    elif centerX >= objX and centerY < objY:
-        angleOfObj = 270 - angleOfObj
-    elif centerX > objX and centerY >= objY:
-        angleOfObj = 270 + angleOfObj
-    
-    #print("Object angle: ", angleOfObj)
-    
-    #print("Heading angle: ",headingAngle)
-
-    NorthToTargetAngle = angleOfObj + headingAngle
-    #print("NorthToTargetAngle: ",NorthToTargetAngle)
-    NorthToTargetAngle %= 360
-    #print("NorthToTargetAngle: ",NorthToTargetAngle)  
-    
-    if NorthToTargetAngle > 0 and NorthToTargetAngle <= 90:
-        dNorth = 1
-        dEast = 1
-        NorthToTargetAngle = 90 - NorthToTargetAngle
-    elif NorthToTargetAngle > 90 and NorthToTargetAngle <= 180:
-        dNorth = -1
-        dEast = 1
-        NorthToTargetAngle = NorthToTargetAngle - 90
-    elif NorthToTargetAngle > 180 and NorthToTargetAngle <= 270:
-        dNorth = -1
-        dEast = -1
-        NorthToTargetAngle = 270 - NorthToTargetAngle
-    elif NorthToTargetAngle > 270 and NorthToTargetAngle <= 360:
-        dNorth = 1
-        dEast = -1
-        NorthToTargetAngle = NorthToTargetAngle - 270
-    #print("NorthToTargetAngle: ",NorthToTargetAngle)
-    dNorth *= hipotenuse*math.sin(math.radians(NorthToTargetAngle))
-    dEast *= hipotenuse*math.cos(math.radians(NorthToTargetAngle))
-    targetLocation = get_location_metres(currentLocation, dNorth, dEast)
-    return targetLocation
 
 # Mission import
 def readmission(aFileName):
@@ -289,19 +315,25 @@ for i in range(len(missions)):
         vehicle.simple_goto(targetLocation)
         targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
 
-        counter = 0
-            
+        counterblue = 0
+        counterred = 0
         while vehicle.mode.name=="GUIDED": #Stop action if we are no longer in guided mode.
         #print "DEBUG: mode: %s" % vehicle.mode.name
             remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
-            if i == 1 and j == 0 and counter < 1 and remainingDistance < targetDistance*0.7:
-                poolLocations.append(get_relative_dNorth_dEast(440, 860, (540,960)))
-                print("Blue area detected.")
-                counter +=1
-            elif i == 1 and j == 0 and counter < 2 and remainingDistance < targetDistance*0.4:
-                poolLocations.append(get_relative_dNorth_dEast(640, 1060, (540,960)))
-                print("Red area detected.")
-                counter +=1
+            if i == 1 and j == 0 and counterblue == 0:
+                returnVal = get_relative_dNorth_dEast("blue")
+                if returnVal is not None:
+                    poolLocations.append(returnVal)
+                    print("Blue area detected.")
+                    counterblue = 1
+            elif i == 1 and j == 0 and counterred == 0:
+                returnVal = get_relative_dNorth_dEast("red")
+                if returnVal is not None:
+                    poolLocations.append(returnVal)
+                    print("Blue area detected.")
+                    counterblue = 1
+            if counterblue*counterred == 1:
+                vidcap.release()
             print("Distance to target: ", remainingDistance)
             if remainingDistance<=targetDistance*0.05: #Just below target, in case of undershoot.
                 print("Reached target")
