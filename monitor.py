@@ -9,7 +9,7 @@ class ThreadedVideoStream:
     def __init__(self, src=0, daemon = True,name="ThreadedVideoStream"):
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = cv2.VideoCapture(src,cv2.CAP_DSHOW)
+        self.stream = cv2.VideoCapture(src)
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         (self.grabbed, self.frame) = self.stream.read()
@@ -43,8 +43,7 @@ class ThreadedVideoStream:
         self.daemon = daemon
         self.stopped = False
         # start the thread to read frames from the video stream
-        self.t = threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=())
-        self.t.start()
+        threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=()).start()
         return
 
     def update(self):
