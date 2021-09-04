@@ -2,12 +2,14 @@
 import threading
 import cv2
 import numpy as np
+import imutils
+
 
 class ThreadedVideoStream:
-    def __init__(self, src=0, q_out=None, daemon = True,name="ThreadedVideoStream"):
+    def __init__(self, src=0, daemon = True,name="ThreadedVideoStream"):
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = cv2.VideoCapture(src)
+        self.stream = cv2.VideoCapture(src,cv2.CAP_DSHOW)
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         (self.grabbed, self.frame) = self.stream.read()
@@ -16,12 +18,12 @@ class ThreadedVideoStream:
         self.center = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)/2), int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)/2))
         self.colorDict = {
             "blue" : {
-                "lower_color" : [100,50,50],
-                "upper_color" : [130,255,255],
+                "lower_color" : [75, 100, 100],
+                "upper_color" : [130, 255, 255],
             },
             "red" : {
-                "lower_color" : [160,50,50],
-                "upper_color" : [180,255,255],
+                "lower_color" : [160, 100, 100],
+                "upper_color" : [179, 255, 255],
             },
         }
         self.whichColor = None
@@ -32,6 +34,9 @@ class ThreadedVideoStream:
             "red" : (0,0,255),
         }
         self.colorLoc = (0,0,0,0,0,0)
+        
+        self.out = None
+        self.videoOutput = "videoOutput.avi"
         # initialize the thread name
         self.name = name
         # initialize the variable used to indicate if the thread should
@@ -39,33 +44,42 @@ class ThreadedVideoStream:
         self.daemon = daemon
         self.stopped = False
         # start the thread to read frames from the video stream
-        threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=()).start()
+        self.t = threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=())
+        self.t.start()
         return
 
     def update(self):
         # keep looping infinitely until the thread is stopped
+        i = 0
         while True:
             # if the thread indicator variable is set, stop the thread
             if self.stopped:
                 return
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
+            a = 0
             if self.grabbed:
+                i += 1
+                print(i)
                 self.frame = cv2.flip(self.frame, 1)
                 if self.whichColor is not None:
-                    hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+                    #self.frame = imutils.resize(self.frame, width=600)
+                    blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
+                    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
                     mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
                     colorcnts = cv2.findContours(mask.copy(),
                               cv2.RETR_EXTERNAL,
-                              cv2.CHAIN_APPROX_SIMPLE)[-2]
+                              cv2.CHAIN_APPROX_SIMPLE)
+                    colorcnts = imutils.grab_contours(colorcnts)
                     if len(colorcnts) > 0:
-                        print("found")
-                        color_area = max(colorcnts, key=cv2.contourArea)
-                        (xg,yg,wg,hg) = cv2.boundingRect(color_area)
+                        (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
                         self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
                         self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
-                self.q_out.put(self.frame)
+               
+            if self.out is None:
+                self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 20, self.frame.shape[:2][::-1],1)
+            self.out.write(self.frame)
         return
 
     def read(self):
@@ -79,19 +93,21 @@ class ThreadedVideoStream:
         if self.color == color:
             return
         if color is not None:
-            self.maskLower = np.array(self.colorDict[color]["lower_color"])
-            self.maskUpper = np.array(self.colorDict[color]["upper_color"])
+            self.maskLower = np.array(self.colorDict[color]["lower_color"], dtype="uint8")
+            self.maskUpper = np.array(self.colorDict[color]["upper_color"], dtype="uint8")
         self.whichColor = color
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
     
-    def __exit__(self):
+    def finish(self):
+        self.stream.release()
+        cv2.destroyAllWindows()
         self.stop()
         print("Exiting ThreadedVideoStream")
-        self.stream.release()
-        threading.currentThread().join(1)
+        
 
+"""
 class ThreadedVideoSave:
     def __init__(self, q_in=None, videoOutput= "project.avi", daemon = True,name="ThreadedVideoSave"):
         # initialize queue
@@ -105,34 +121,28 @@ class ThreadedVideoSave:
         self.daemon = daemon
         self.stopped = False
         # start the thread to read frames from the video stream
-        threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=()).start()
+        self.t = threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=())
+        self.t.start()
         return
     
     def update(self):
         # keep looping infinitely until the thread is stopped
         while True:
-            # if the thread indicator variable is set, stop the thread
-            if self.stopped:
-                return
             # otherwise, read the next frame from the stream
             if self.q_in.empty() is False:
                 self.frame = self.q_in.get()
                 if self.out is None:
-                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 15, self.frame.shape[:2][::-1],1)
+                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 10, self.frame.shape[:2][::-1],1)
                 self.out.write(self.frame)
-            else: 
-                print("FIFO empty")
         return
 
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
     
-    
-    def __exit__(self):
+    def finish(self):
         while self.q_in.empty() is False:
             self.out.write(self.q_in.get())
-        self.stop()
-        print("Exiting ThreadedVideoSave")
         self.out.release()
-        threading.currentThread().join(1)
+        print("Exiting ThreadedVideoSave")
+"""

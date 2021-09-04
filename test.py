@@ -1,21 +1,22 @@
 from monitor import *
-from queue import Queue
 import time 
-import numpy as np
 
 
-frameQ = Queue(maxsize=0)
-myThread = ThreadedVideoStream(q_out=frameQ)
-myThread2 = ThreadedVideoSave(q_in=frameQ)
-myThread.setColor("blue")
 
 
-start = time.time()
-while True:
-    if time.time() - start > 10:
-        myThread.setColor("red")
-    if time.time() - start > 20:
-        break
+if __name__ == "__main__":
+    myThread = ThreadedVideoStream()
+    myThread.setColor("blue")
 
-while frameQ.empty() in False:
-    print("Queue bekleniyor.")
+
+    start = time.time()
+    blueStop = False
+    while True:
+        if time.time() - start > 10 and blueStop == False:
+            myThread.setColor("red")
+            blueStop = True
+        if time.time() - start > 20:
+            break
+
+    
+    myThread.finish()
