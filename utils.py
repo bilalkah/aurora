@@ -70,81 +70,61 @@ def get_location_metres(original_location, dNorth, dEast):
         
     return targetlocation
 
-def get_relative_dNorth_dEast(vehicle,vidcap,color):
-    success,imagedisp = vidcap
+def get_relative_dNorth_dEast(vehicle, info):
+    
+    (xg,yg,wg,hg,centerY,centerX) = info
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
     altitude = vehicle.location.global_relative_frame.alt
 
-    if color == "blue":
-        lower_color = np.array([100,50,50])
-        upper_color = np.array([130,255,255])
-    elif color == "red":
-        lower_color = np.array([160,50,50])
-        upper_color = np.array([180,255,255])
-        
-    while success:
-        hsv = cv2.cvtColor(imagedisp, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange (hsv, lower_color, upper_color)
-        colorcnts = cv2.findContours(mask.copy(),
-                              cv2.RETR_EXTERNAL,
-                              cv2.CHAIN_APPROX_SIMPLE)[-2]
-        if len(colorcnts)>0:
-            color_area = max(colorcnts, key=cv2.contourArea)
-            (xg,yg,wg,hg) = cv2.boundingRect(color_area)
-            imagedisp = cv2.rectangle(imagedisp,(xg,yg),(xg+wg, yg+hg),(36,255,12),2)
-            cv2.imwrite(color+".png",imagedisp)
-            print(wg*hg, "pixel2 detected.")
-            if wg*hg >= 1000:
-                (centerY,centerX) = imagedisp.shape[:2]
-                centerY //= 2
-                centerX //= 2
-                objX = xg + wg/2
-                objY = yg + hg/2
-                lengthX = abs(centerX-objX)
-                lengthY = abs(centerY-objY)
-                radianOfObj = math.atan2(lengthY, lengthX)
-                angleOfObj = math.degrees(radianOfObj)
-                hipotenuse = 10#math.sqrt(lengthX**2+lengthY**2)*altitude
+    print(wg*hg, "pixel2 detected.")
+    if wg*hg >= 1000:
+        (centerY,centerX) = imagedisp.shape[:2]
+        centerY //= 2
+        centerX //= 2
+        objX = xg + wg/2
+        objY = yg + hg/2
+        lengthX = abs(centerX-objX)
+        lengthY = abs(centerY-objY)
+        radianOfObj = math.atan2(lengthY, lengthX)
+        angleOfObj = math.degrees(radianOfObj)
+        hipotenuse = 10#math.sqrt(lengthX**2+lengthY**2)*altitude
                 
-                dNorth , dEast = 0,0
-                if centerX < objX and centerY > objY:
-                    angleOfObj = 90 - angleOfObj
-                elif centerX < objX and centerY <= objY:
-                    angleOfObj = 90 + angleOfObj
-                elif centerX >= objX and centerY < objY:
-                    angleOfObj = 270 - angleOfObj
-                elif centerX > objX and centerY >= objY:
-                    angleOfObj = 270 + angleOfObj
+        dNorth , dEast = 0,0
+        if centerX < objX and centerY > objY:
+            angleOfObj = 90 - angleOfObj
+        elif centerX < objX and centerY <= objY:
+            angleOfObj = 90 + angleOfObj
+        elif centerX >= objX and centerY < objY:
+            angleOfObj = 270 - angleOfObj
+        elif centerX > objX and centerY >= objY:
+            angleOfObj = 270 + angleOfObj
                     
-                NorthToTargetAngle = angleOfObj + headingAngle
-                NorthToTargetAngle %= 360
+        NorthToTargetAngle = angleOfObj + headingAngle
+        NorthToTargetAngle %= 360
                 
-                if NorthToTargetAngle > 0 and NorthToTargetAngle <= 90:
-                    dNorth = 1
-                    dEast = 1
-                    NorthToTargetAngle = 90 - NorthToTargetAngle
-                elif NorthToTargetAngle > 90 and NorthToTargetAngle <= 180:
-                    dNorth = -1
-                    dEast = 1
-                    NorthToTargetAngle = NorthToTargetAngle - 90  
-                elif NorthToTargetAngle > 180 and NorthToTargetAngle <= 270:
-                    dNorth = -1
-                    dEast = -1
-                    NorthToTargetAngle = 270 - NorthToTargetAngle
-                elif NorthToTargetAngle > 270 and NorthToTargetAngle <= 360:
-                    dNorth = 1
-                    dEast = -1
-                    NorthToTargetAngle = NorthToTargetAngle - 270
-                dNorth *= hipotenuse*math.sin(math.radians(NorthToTargetAngle))
-                dEast *= hipotenuse*math.cos(math.radians(NorthToTargetAngle))
-                targetLocation = get_location_metres(currentLocation, dNorth, dEast)
-                return targetLocation
-            else:
-                return None
-        else:
-            return None
-    return None
+        if NorthToTargetAngle > 0 and NorthToTargetAngle <= 90:
+            dNorth = 1
+            dEast = 1
+            NorthToTargetAngle = 90 - NorthToTargetAngle
+        elif NorthToTargetAngle > 90 and NorthToTargetAngle <= 180:
+            dNorth = -1
+            dEast = 1
+            NorthToTargetAngle = NorthToTargetAngle - 90  
+        elif NorthToTargetAngle > 180 and NorthToTargetAngle <= 270:
+            dNorth = -1
+            dEast = -1
+            NorthToTargetAngle = 270 - NorthToTargetAngle
+        elif NorthToTargetAngle > 270 and NorthToTargetAngle <= 360:
+            dNorth = 1
+            dEast = -1
+            NorthToTargetAngle = NorthToTargetAngle - 270
+        dNorth *= hipotenuse*math.sin(math.radians(NorthToTargetAngle))
+        dEast *= hipotenuse*math.cos(math.radians(NorthToTargetAngle))
+        targetLocation = get_location_metres(currentLocation, dNorth, dEast)
+        return targetLocation
+    else:
+        return None
 
 
 def readmission(aFileName):

@@ -1,6 +1,7 @@
 # Threading for monitor camera
 import threading
 import cv2
+import numpy as np
 
 class ThreadedVideoStream:
     def __init__(self, src=0, q_out=None, daemon = True,name="ThreadedVideoStream"):
@@ -11,6 +12,26 @@ class ThreadedVideoStream:
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         (self.grabbed, self.frame) = self.stream.read()
         self.q_out = q_out
+        # color detection
+        self.center = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)/2), int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)/2))
+        self.colorDict = {
+            "blue" : {
+                "lower_color" : [100,50,50],
+                "upper_color" : [130,255,255],
+            },
+            "red" : {
+                "lower_color" : [160,50,50],
+                "upper_color" : [180,255,255],
+            },
+        }
+        self.whichColor = None
+        self.maskLower = None
+        self.maskUpper = None
+        self.color = {
+            "blue": (255,0,0),
+            "red" : (0,0,255),
+        }
+        self.colorLoc = (0,0,0,0,0,0)
         # initialize the thread name
         self.name = name
         # initialize the variable used to indicate if the thread should
@@ -31,6 +52,19 @@ class ThreadedVideoStream:
             (self.grabbed, self.frame) = self.stream.read()
             if self.grabbed:
                 self.frame = cv2.flip(self.frame, 1)
+                if self.whichColor is not None:
+                    hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+                    mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
+                    colorcnts = cv2.findContours(mask.copy(),
+                              cv2.RETR_EXTERNAL,
+                              cv2.CHAIN_APPROX_SIMPLE)[-2]
+                    if len(colorcnts) > 0:
+                        print("found")
+                        color_area = max(colorcnts, key=cv2.contourArea)
+                        (xg,yg,wg,hg) = cv2.boundingRect(color_area)
+                        self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
+                        self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
+                        self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                 self.q_out.put(self.frame)
         return
 
@@ -38,6 +72,16 @@ class ThreadedVideoStream:
         # return the frame most recently read
         return (self.grabbed,self.frame)
 
+    def readLoc(self):
+        return self.colorLoc
+
+    def setColor(self,color):
+        if self.color == color:
+            return
+        if color is not None:
+            self.maskLower = np.array(self.colorDict[color]["lower_color"])
+            self.maskUpper = np.array(self.colorDict[color]["upper_color"])
+        self.whichColor = color
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
@@ -76,6 +120,8 @@ class ThreadedVideoSave:
                 if self.out is None:
                     self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 15, self.frame.shape[:2][::-1],1)
                 self.out.write(self.frame)
+            else: 
+                print("FIFO empty")
         return
 
     def stop(self):

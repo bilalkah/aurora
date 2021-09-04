@@ -74,6 +74,7 @@ Between mission[1] and mission[2] the copter will fly
 """
 counterblue = False
 counterred = False
+
 for i in range(len(missions)):
     print("Mission "+str(i)+" started.")
     
@@ -134,27 +135,27 @@ for i in range(len(missions)):
         
         vehicle.simple_goto(targetLocation)
         targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
-
+        if i == 1 and j == 0:
+            myThread.setColor(color="blue")
         while vehicle.mode.name=="GUIDED": 
 
             remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
             if i == 1 and j == 0 and counterblue is False:
-                returnVal = get_relative_dNorth_dEast(vehicle,myThread.read(),"blue")
+                returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc())
                 if returnVal is not None:
                     poolLocations.insert(0, returnVal)
                     print("Blue area detected.")
                     counterblue = True
                     
             elif i == 1 and j == 0 and counterred is False:
-                returnVal = get_relative_dNorth_dEast(vehicle,myThread.read(),"red")
+                returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc())
                 if returnVal is not None:
                     poolLocations.append(returnVal)
                     print("Red area detected.")
                     counterblue = True
-                    
-            if counterblue and counterred:
-                print("Camera closed.")
-                vidcap.release()
+
+            if counterblue:
+                myThread.setColor(color="red")
                 
             print("Distance to target: ", remainingDistance)
             if remainingDistance<=targetDistance*0.05 or remainingDistance < 0.15: 
