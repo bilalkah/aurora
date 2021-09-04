@@ -63,7 +63,7 @@ class ThreadedVideoStream:
                 if self.whichColor is not None:
                     #self.frame = imutils.resize(self.frame, width=600)
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
-                    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+                    hsv = cv2.cvtColor(blurred, cv2.COLOR_RGB2HSV)
                     mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
                     colorcnts = cv2.findContours(mask.copy(),
                               cv2.RETR_EXTERNAL,
