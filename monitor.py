@@ -56,7 +56,7 @@ class ThreadedVideoStream:
                 return
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
-            a = 0
+            
             if self.grabbed:
                 i += 1
                 print(i)
@@ -76,9 +76,9 @@ class ThreadedVideoStream:
                         self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                
-            if self.out is None:
-                self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 20, self.frame.shape[:2][::-1],1)
-            self.out.write(self.frame)
+                if self.out is None:
+                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 20, self.frame.shape[:2][::-1],1)
+                self.out.write(self.frame)
         return
 
     def read(self):
