@@ -94,7 +94,7 @@ def get_relative_dNorth_dEast(vehicle,vidcap,color):
             (xg,yg,wg,hg) = cv2.boundingRect(color_area)
             imagedisp = cv2.rectangle(imagedisp,(xg,yg),(xg+wg, yg+hg),(36,255,12),2)
             cv2.imwrite(color+".png",imagedisp)
-            print(wg*hg)
+            print(wg*hg, "pixel2 detected.")
             if wg*hg >= 1000:
                 (centerY,centerX) = imagedisp.shape[:2]
                 centerY //= 2

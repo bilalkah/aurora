@@ -15,7 +15,7 @@ try:
     img_array = []
     size = (0,0)
     while success:
-        """hsv = cv2.cvtColor(imagedisp, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(imagedisp, cv2.COLOR_BGR2HSV)
         # define range of blue color in HSV
         lower_blue = np.array([100,50,50])
         upper_blue = np.array([130,255,255])
@@ -41,7 +41,7 @@ try:
 	        red_area = max(redcnts, key=cv2.contourArea)
 	        (xg,yg,wg,hg) = cv2.boundingRect(red_area);x,y=xg,yg
 	        cv2.rectangle(imagedisp,(xg,yg),(xg+wg, yg+hg),(36,255,12),2)
-        cv2.putText(imagedisp, 'Su Birakma Noktasi', (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)"""
+        cv2.putText(imagedisp, 'Su Birakma Noktasi', (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
          
         
         height, width, layers = imagedisp.shape
