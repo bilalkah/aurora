@@ -9,8 +9,10 @@ from pymavlink import mavutil # Needed for command message definitions
 import time
 import math
 import cv2
+import numpy as np
 #Set up option parsing to get connection string
 import argparse  
+
 
 
 totaltime = time.time()
@@ -19,19 +21,21 @@ parser.add_argument('--connect',
                    help="Vehicle connection target string. If not specified, SITL automatically started and used.")
 args = parser.parse_args()
 
+
+
 connection_string = args.connect
 
-vidcap = cv2.VideoCapture(0)
-success,imagedisp = vidcap.read()
-height, width, layers = imagedisp.shape
 
-# Connect to the Vehicle
-print('Connecting to vehicle on: %s' % connection_string)
-vehicle = connect(connection_string, wait_ready=True)
+def connectCopter(connection_string):
+    print('Connecting to vehicle on: %s' % connection_string)
+    vehicle = connect(connection_string, wait_ready=True)
+    return vehicle
+
+vehicle = connectCopter(connection_string)
 
 
 
-def arm_and_takeoff(aTargetAltitude):
+def arm_and_takeoff(vehicle,aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude.
     """
@@ -111,13 +115,13 @@ def goto(dNorth, dEast, gotoFunction=vehicle.simple_goto):
     
 
 
-def get_relative_dNorth_dEast(color):
+def get_relative_dNorth_dEast(vehicle,color):
     success,imagedisp = vidcap.read()
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
     altitude = vehicle.location.global_relative_frame.alt
-    Threshold = 1000
-    pixel = (altitude*6.48-e4)/3
+
+    pixel = (altitude*6.48e-4)/3
     if color == "blue":
         lower_color = np.array([100,50,50])
         upper_color = np.array([130,255,255])
@@ -137,6 +141,9 @@ def get_relative_dNorth_dEast(color):
             blue_area = max(bluecnts, key=cv2.contourArea)
             (xg,yg,wg,hg) = cv2.boundingRect(blue_area)
             print(color,wg*hg,pixel*pixel*0.95)
+            imagedisp = cv2.rectangle(imagedisp,(xg,yg),(xg+wg, yg+hg),(36,255,12),2)
+            cv2.imshow("test",imagedisp)
+            cv2.waitKey(1)
             if wg*hg >= pixel*pixel*0.95:
                 (centerY,centerX) = imagedisp.shape[:2]
                 centerY //= 2
@@ -330,7 +337,7 @@ for i in range(len(missions)):
                 returnVal = get_relative_dNorth_dEast("red")
                 if returnVal is not None:
                     poolLocations.append(returnVal)
-                    print("Blue area detected.")
+                    print("Red area detected.")
                     counterblue = 1
             if counterblue*counterred == 1:
                 vidcap.release()
