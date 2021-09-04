@@ -10,15 +10,15 @@ import math
 import cv2
 import numpy as np
 import argparse  
-from monitor import *
+
 #------------------------------------------------------
 # Threading for monitor camera
+from monitor import *
+from queue import Queue
 
-global myThread
-try:
-    myThread = ThreadedVideoStream()
-except KeyboardInterrupt():
-    myThread.stopped = True
+frameQ = Queue(maxsize=0)
+myThread = ThreadedVideoStream(q_out=frameQ)
+myThread2 = ThreadedVideoSave(q_in=frameQ)
 
 #------------------------------------------------------
 
@@ -166,14 +166,25 @@ for i in range(len(missions)):
 print("Landing..")
 vehicle.mode = VehicleMode("LAND")
 
+while True:
+        print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
+        if vehicle.location.global_relative_frame.alt<0.2: #Trigger just below target alt.
+            print("Landed")
+            break
+        time.sleep(1)
+
 # Print duty time
 totaltime = time.time() - programTime
 print("%d:%02d"%(totaltime//60,totaltime%60))
 
+vehicle.armed = False
 # Wait for disarming and close the connection
 while vehicle.armed:
     print("Waiting for disarming.")
     time.sleep(1)
+print("Disarmed.")
+
 vehicle.close()
+print("Vehicle closed.")
 
 myThread.stop()
