@@ -61,7 +61,6 @@ class ThreadedVideoStream:
                 print(i)
                 self.frame = cv2.flip(self.frame, 1)
                 if self.whichColor is not None:
-                    #self.frame = imutils.resize(self.frame, width=600)
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
                     hsv = cv2.cvtColor(blurred, cv2.COLOR_RGB2HSV)
                     mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
@@ -74,10 +73,11 @@ class ThreadedVideoStream:
                         self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
                         self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
-               
+                """
                 if self.out is None:
-                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 20, self.frame.shape[:2][::-1],1)
+                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 1, self.frame.shape[:2][::-1],1)
                 self.out.write(self.frame)
+                """
         return
 
     def read(self):
