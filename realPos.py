@@ -11,7 +11,7 @@ from math import ceil
 def calcRealY(hi, ph, Z):
     # Kamera teknik sabitleri
     hs = 0.00274 # m (2.74mm) 
-    f = 0.00329 #m (3.29mm)
+    f = 0.00290 #m (3.29mm)
 
     # Cismin resimdeki orta noktaya göre konumu
     pv = hi/2 - ph # px
@@ -65,8 +65,8 @@ def drawRealPos(img, pos, size):
 
 def process(loc, altitude=1):
     (xg, yg, wg, hg, cy, cx) = loc
-    xg = xg + wg/2
-    yg = yg + hg/2
+    xg = xg + wg//2
+    yg = yg + hg//2
     size0 = calcRealX(cx*2, xg, altitude)
     size1 = calcRealY(cy*2, yg, altitude)
     return (size0, size1)
