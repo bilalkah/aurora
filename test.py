@@ -10,17 +10,17 @@ if __name__ == "__main__":
 
 
     start = time.time()
-    i = 5
-    j = 10
+    blue = False
+    red = True
     try:
         while True:
-            if time.time() - start > i:
+            if red:
                 myThread.setColor("red")
-                print(time.time(), i, "red")
-            elif time.time() - start > j:
+                red =False
+                blue = True
+            elif blue:
                 myThread.setColor("blue")
-                print(time.time(), j, "blue")
-                i +=10
-                j +=10
+                red = True
+                blue = False
     except KeyboardInterrupt:
         myThread.finish()
