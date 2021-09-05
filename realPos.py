@@ -64,10 +64,35 @@ def drawRealPos(img, pos, size):
 # [xmin ymin xlen ylen hc wc]
 
 def process(loc, altitude=1):
-    (xg, yg, wg, hg, cy, cx) = loc
-    xg = xg + wg//2
-    yg = yg + hg//2
-    size0 = abs(calcRealX(cx*2, xg, altitude))
-    size1 = abs(calcRealY(cy*2, yg, altitude))
-    return (size0, size1)
-    #drawRealPos(img, obj, [size0,size1])
+    (obj_start_x, obj_start_y, 
+     obj_width, obj_height,
+     center_x, center_y
+    ) = loc
+    s_width = 0.00376 # m
+    s_height = 0.00274 # m
+    focal = 0.00360 # m
+    
+    width = center_x * 2
+    height = center_y * 2
+    
+    img_center_x = obj_start_x + obj_width//2
+    img_center_y = obj_start_y + obj_height//2
+    
+    # X için gerçek uzaklık hesabı
+    # Resmin koordinatından orta noktanın koordinatına geçiş
+    u = img_center_x - center_x # px = px - px
+    # Pixelden sensör üzerindeki gerçek boyut dönüşümü
+    x_sensor = s_width * u / width # m = m * px / px
+    # Sensör üzerindeki boyuttan üçgen benzerliği ile gerçek boyuta dönüşüm
+    x_real = x_sensor * altitude / focal  # m = m * m / m
+    
+    
+    # Y için gerçek uzaklık hesabı
+    # Resmin koordinatından orta noktanın koordinatına geçiş
+    v = center_y - img_center_y # px = px - px
+    # Pixelden sensör üzerindeki gerçek boyut dönüşümü
+    y_sensor = s_height * v / height # m = m * px / px
+    # Sensör üzerindeki boyuttan üçgen benzerliği ile gerçek boyuta dönüşüm
+    y_real = y_sensor * altitude / focal # m = m * m / m
+    
+    return (x_real, y_real)
