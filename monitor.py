@@ -59,10 +59,10 @@ class ThreadedVideoStream:
             if self.grabbed:
                 i += 1
                 
-                self.frame = cv2.flip(self.frame, 1)
+                #self.frame = cv2.flip(self.frame, 1)
                 if self.whichColor is not None:
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
-                    hsv = cv2.cvtColor(blurred, cv2.COLOR_RGB2HSV)
+                    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
                     mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
                     colorcnts = cv2.findContours(mask.copy(),
                               cv2.RETR_EXTERNAL,
@@ -75,7 +75,7 @@ class ThreadedVideoStream:
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
 
                 if self.out is None:
-                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 1, self.frame.shape[:2][::-1],1)
+                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 2, self.frame.shape[:2][::-1],1)
                 self.out.write(self.frame)
 
             print(i)
