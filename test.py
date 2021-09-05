@@ -14,7 +14,7 @@ if __name__ == "__main__":
     try:
         while True:
             if  (time.time() - start) > 10:
-                myThread.setColor("blue")
+                myThread.setColor("red")
                 
     except KeyboardInterrupt:
         myThread.finish()
