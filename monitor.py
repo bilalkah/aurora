@@ -75,7 +75,7 @@ class ThreadedVideoStream:
                             self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
 
                     if self.out is None:
-                        self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 2, self.frame.shape[:2][::-1],1)
+                        self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 5, self.frame.shape[:2][::-1],1)
                     self.out.write(self.frame)
 
     def read(self):
