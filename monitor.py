@@ -15,7 +15,8 @@ class ThreadedVideoStream:
         #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         (self.grabbed, self.frame) = self.stream.read()
-        print("Frame size: ", self.frame.shape)
+        if self.grabbed:
+            print("Frame size: ", self.frame.shape)
         # color detection
         self.center = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)/2), int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)/2))
         self.colorDict = {
