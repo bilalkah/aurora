@@ -8,16 +8,16 @@ from math import ceil
 @ph: cismin resimdeki bulunduğu piksel
 @Z: Kameranın yere uzaklığı
 """
-def calcRealY(hi, ph, Z):
+def calcRealY(hc, ph, Z):
     # Kamera teknik sabitleri
     hs = 0.00274 # m (2.74mm) 
-    f = 0.00329 #m (3.29mm)
+    f = 0.00290 #m (3.29mm)
 
     # Cismin resimdeki orta noktaya göre konumu
-    pv = hi/2 - ph # px
+    pv = hc - ph # px
 
     # Cismin sensör alanındaki orta noktaya göre konumu
-    ys = pv * hs / hi # m
+    ys = pv * hs / hc * 2 # m
 
     # Cismin gerçek konumu
     Y = ys * Z / f
@@ -28,16 +28,16 @@ def calcRealY(hi, ph, Z):
 @ph: cismin resimdeki bulunduğu piksel
 @Z: Kameranın yere uzaklığı
 """
-def calcRealX(hi, ph, Z):
+def calcRealX(hc, ph, Z):
     # Kamera teknik sabitleri
     hs = 0.00367 # m (2.74mm) 
     f = 0.00360 #m (3.29mm)
 
     # Cismin resimdeki orta noktaya göre konumu
-    pv = ph - hi/2  # px
+    pv = ph - hc  # px
 
     # Cismin sensör alanındaki orta noktaya göre konumu
-    ys = pv * hs / hi # m
+    ys = pv * hs / hc * 2 # m
 
     # Cismin gerçek konumu
     Y = ys * Z / f
@@ -65,9 +65,9 @@ def drawRealPos(img, pos, size):
 
 def process(loc, altitude=1):
     (xg, yg, wg, hg, cy, cx) = loc
-    xg = xg + wg/2
-    yg = yg + hg/2
-    size0 = calcRealX(cx*2, xg, altitude)
-    size1 = calcRealY(cy*2, yg, altitude)
+    xg = xg + wg//2
+    yg = yg + hg//2
+    size0 = calcRealX(cx, xg, altitude)
+    size1 = calcRealY(cy, yg, altitude)
     return (size0, size1)
     #drawRealPos(img, obj, [size0,size1])
