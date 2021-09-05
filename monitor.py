@@ -125,7 +125,7 @@ class ThreadedVideoStream:
             self.out.release()
         print("after release out")
         if self.imshow:
-            cv2.destroyAllWindows()
+            cv2.destroyWindow("Drone Cam")
         print("after destroy")
         self.stream.release()
         print("after release stream")

@@ -8,19 +8,15 @@ if __name__ == "__main__":
     myThread = ThreadedVideoStream(imwrite=True)
     myThread.setColor("blue")
 
-
     start = time.time()
-    blue = False
-    red = True
+    i = 10
+
     try:
         while True:
-            if red:
+            if  (time.time() - start) < 10:
                 myThread.setColor("red")
-                red =False
-                blue = True
-            elif blue:
+            else:
                 myThread.setColor("blue")
-                red = True
-                blue = False
+                
     except KeyboardInterrupt:
         myThread.finish()
