@@ -5,7 +5,7 @@ import time
 
 
 if __name__ == "__main__":
-    myThread = ThreadedVideoStream(imwrite=True)
+    myThread = ThreadedVideoStream(livestream=True, stream_address=('10.76.134.247',9999))
     myThread.setColor("blue")
 
     start = time.time()

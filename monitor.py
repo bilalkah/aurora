@@ -24,13 +24,13 @@ class ThreadedVideoStream:
         if self.livestream:
             self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket_address = stream_address
-            self.server_socket.bind(socket_address)
+            self.server_socket.bind(self.socket_address)
             try:
                 self.server_socket.listen(5)
-                print("Listening at: ",socket_address)
+                print("Listening at: ",self.socket_address)
                 self.client_socket, self.addr = self.server_socket.accept()
                 print("Client connected")
-            except:
+            except (OSError,IOError):
                 print("Server socket error")
                 self.server_socket.close()
                 self.server_socket = None

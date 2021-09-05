@@ -2,7 +2,7 @@ import socket,cv2, pickle,struct
 
 # create socket
 client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-host_ip,port = ('192.168.137.233', 9999)
+host_ip,port = ('10.76.134.247', 9999)
 client_socket.connect((host_ip,port)) # a tuple
 data = b""
 payload_size = struct.calcsize("Q")
