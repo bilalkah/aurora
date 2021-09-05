@@ -51,32 +51,32 @@ class ThreadedVideoStream:
         i = 0
         while True:
             # if the thread indicator variable is set, stop the thread
-            if self.stopped:
-                return
-            # otherwise, read the next frame from the stream
-            (self.grabbed, self.frame) = self.stream.read()
+            if self.stopped is False:
+                
+                # otherwise, read the next frame from the stream
+                (self.grabbed, self.frame) = self.stream.read()
             
-            if self.grabbed:
-                i += 1
-                print(i)
-                #self.frame = cv2.flip(self.frame, 1)
-                if self.whichColor is not None:
-                    blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
-                    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-                    mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
-                    colorcnts = cv2.findContours(mask.copy(),
+                if self.grabbed:
+                    i += 1
+                    print(i)
+                    #self.frame = cv2.flip(self.frame, 1)
+                    if self.whichColor is not None:
+                        blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
+                        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+                        mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
+                        colorcnts = cv2.findContours(mask.copy(),
                               cv2.RETR_EXTERNAL,
                               cv2.CHAIN_APPROX_SIMPLE)
-                    colorcnts = imutils.grab_contours(colorcnts)
-                    if len(colorcnts) > 0:
-                        (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
-                        self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
-                        self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
-                        self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
+                        colorcnts = imutils.grab_contours(colorcnts)
+                        if len(colorcnts) > 0:
+                            (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
+                            self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
+                            self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
+                            self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
 
-                if self.out is None:
-                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 2, self.frame.shape[:2][::-1],1)
-                self.out.write(self.frame)
+                    if self.out is None:
+                        self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 2, self.frame.shape[:2][::-1],1)
+                    self.out.write(self.frame)
 
     def read(self):
         # return the frame most recently read
