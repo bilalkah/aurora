@@ -100,7 +100,6 @@ class ThreadedVideoStream:
         self.stop()
         self.stream.release()
         self.out.release()
-        cv2.destroyAllWindows()
         print("Exiting ThreadedVideoStream")
         
 
