@@ -63,7 +63,7 @@ def drawRealPos(img, pos, size):
 
 # [xmin ymin xlen ylen hc wc]
 
-def streamAndProcess(loc, altitude=1):
+def process(loc, altitude=1):
     (xg, yg, wg, hg, cy, cx) = loc
     xg = xg + wg/2
     yg = yg + hg/2

@@ -6,7 +6,7 @@ import time
 import math
 import cv2
 import numpy as np
-
+from realPos import *
 
 def connectCopter(connection_string):
     print('Connecting to vehicle on: %s' % connection_string)
@@ -72,20 +72,20 @@ def get_location_metres(original_location, dNorth, dEast):
 
 def get_relative_dNorth_dEast(vehicle, info):
     
-    (xg,yg,wg,hg,centerY,centerX) = info
+    (sizeX,sizeY )= process(info,altitude = vehicle.location.global_relative_frame.alt)
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
-    altitude = vehicle.location.global_relative_frame.alt
-    print(info)
-    print(wg*hg, "pixel2 detected.")
-    if wg*hg >= 1000:
+    (xg,yg,wg,hg,centerY,centerX) = info
+    
+    print(sizeX*sizeY, "m2 detected.")
+    if sizeX*sizeY >= 2.5*2.5*0.9:
         objX = xg + wg/2
         objY = yg + hg/2
         lengthX = abs(centerX-objX)
         lengthY = abs(centerY-objY)
         radianOfObj = math.atan2(lengthY, lengthX)
         angleOfObj = math.degrees(radianOfObj)
-        hipotenuse = 10#math.sqrt(lengthX**2+lengthY**2)*altitude
+        hipotenuse = math.sqrt(sizeX**2+sizeY**2)
                 
         dNorth , dEast = 0,0
         if centerX < objX and centerY > objY:

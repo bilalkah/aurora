@@ -3,7 +3,7 @@ import threading
 import cv2
 import numpy as np
 import imutils
-
+from realPos import *
 
 class ThreadedVideoStream:
     def __init__(self, src=0, imshow=False, imwrite=False, daemon=True, name="ThreadedVideoStream"):
@@ -76,6 +76,19 @@ class ThreadedVideoStream:
                             self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
                             self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                             self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
+                            (sizeX,sizeY)= process(self.colorLoc,altitude = 2)
+                            hipotenuse = (sizeX**2+sizeY**2)**(1/2)
+                            # X ekseni çizilir
+                            
+                            cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color[self.whichColor])
+                            cv2.putText(self.frame, ("%.2f" % (sizeX*100)) + "cm", (xg+(wg//2),self.center[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                                        self.color[self.whichColor], 2, cv2.LINE_AA, False)
+                            
+                            #Y ekseni çizilir
+                            cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color[self.whichColor])
+                            cv2.putText(self.frame, ("%.2f" % (sizeY*100)) + "cm", (self.center[0], yg+(hg//2)), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                            self.color[self.whichColor], 2, cv2.LINE_AA, False)
+                            
                     if self.imwrite:
                         if self.out is None:
                             self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
