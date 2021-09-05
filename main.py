@@ -14,7 +14,8 @@ import argparse
 # Threading for monitor camera
 from monitor import *
 
-myThread = ThreadedVideoStream(imshow=True)
+myThread = ThreadedVideoStream(imshow=True,imwrite=True)
+myThread.setColor("blue")
 
 #------------------------------------------------------
 
@@ -79,7 +80,7 @@ for i in range(len(missions)):
 
         for j in range(len(poolLocations)):
             
-            descendAlt = 3
+            descendAlt = 0.75
             targetLocation = poolLocations[j]
             vehicle.simple_goto(targetLocation)
             targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
@@ -139,20 +140,20 @@ for i in range(len(missions)):
             if i == 1 and j == 0 and counterblue is False:
                 returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc())
                 if returnVal is not None:
+                    myThread.setColor("red")
                     poolLocations.insert(0, returnVal)
                     print("Blue area detected.")
                     counterblue = True
+                    time.sleep(0.1)
                     
             elif i == 1 and j == 0 and counterred is False:
                 returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc())
                 if returnVal is not None:
+                    myThread.setColor(color=None)
                     poolLocations.append(returnVal)
                     print("Red area detected.")
                     counterred = True
-                    myThread.setColor(color=None)
-
-            if counterblue and not counterred:
-                myThread.setColor(color="red")
+                    time.sleep(0.1)
                 
             print("Distance to target: ", remainingDistance)
             if remainingDistance<=targetDistance*0.05 or remainingDistance < 0.15: 

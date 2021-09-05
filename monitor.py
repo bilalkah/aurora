@@ -3,22 +3,51 @@ import threading
 import cv2
 import numpy as np
 import imutils
+import socket, pickle, struct
 from realPos import *
 
 class ThreadedVideoStream:
-    def __init__(self, src=0, imshow=False, imwrite=False, daemon=True, name="ThreadedVideoStream"):
-        # initialize the video camera stream and read the first frame
-        # from the stream
+    def __init__(
+        self, 
+        src=0, 
+        imshow=False,
+        windowsName="drone Cam",
+        imwrite=False, 
+        fileName="drone.avi",
+        livestream=False, 
+        stream_address= ('192.168.137.233', 9999),  
+        daemon=True, 
+        name="ThreadedVideoStream"
+    ):
+        self.livestream = livestream
+        
+        if self.livestream:
+            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket_address = stream_address
+            self.server_socket.bind(socket_address)
+            try:
+                self.server_socket.listen(5)
+                print("Listening at: ",socket_address)
+                self.client_socket, self.addr = self.server_socket.accept()
+                print("Client connected")
+            except:
+                print("Server socket error")
+                self.server_socket.close()
+                self.server_socket = None
+                self.livestream = False
+        
         self.stream = cv2.VideoCapture(src)
         self.imshow = imshow
         self.imwrite = imwrite
-        #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.fileName = fileName
+        self.windowsName = windowsName
+        self.out = None
+        
         (self.grabbed, self.frame) = self.stream.read()
         if self.grabbed:
             print("Frame size: ", self.frame.shape)
-        # color detection
         self.center = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)/2), int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)/2))
+        
         self.colorDict = {
             "blue" : {
                 "lower_color" : [75, 100, 100],
@@ -37,13 +66,9 @@ class ThreadedVideoStream:
             "red" : (0,0,255),
         }
         self.colorLoc = (0,0,0,0,0,0)
-        
-        self.out = None
-        self.videoOutput = "videoOutput.avi"
-        # initialize the thread name
+          
+        # threading
         self.name = name
-        # initialize the variable used to indicate if the thread should
-        # be stopped
         self.daemon = daemon
         self.stopped = False
         # start the thread to read frames from the video stream
@@ -52,52 +77,58 @@ class ThreadedVideoStream:
 
     def update(self):
         # keep looping infinitely until the thread is stopped
-        i = 0
         while True:
             # if the thread indicator variable is set, stop the thread
-            if self.stopped is False:
+            if self.stopped:
+                continue
                 
-                # otherwise, read the next frame from the stream
-                (self.grabbed, self.frame) = self.stream.read()
-                if self.grabbed:
-                    i += 1
-                    print(i)
-                    #self.frame = cv2.flip(self.frame, 1)
-                    if self.whichColor is not None:
-                        blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
-                        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-                        mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
-                        colorcnts = cv2.findContours(mask.copy(),
-                              cv2.RETR_EXTERNAL,
-                              cv2.CHAIN_APPROX_SIMPLE)
-                        colorcnts = imutils.grab_contours(colorcnts)
-                        if len(colorcnts) > 0:
-                            (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
-                            self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
-                            self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
-                            self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
-                            (sizeX,sizeY)= process(self.colorLoc,altitude = 2)
-                            hipotenuse = (sizeX**2+sizeY**2)**(1/2)
-                            # X ekseni çizilir
-                            
-                            cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color[self.whichColor])
-                            cv2.putText(self.frame, ("%.2f" % (sizeX*100)) + "cm", (xg+(wg//2),self.center[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                                        self.color[self.whichColor], 2, cv2.LINE_AA, False)
-                            
-                            #Y ekseni çizilir
-                            cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color[self.whichColor])
-                            cv2.putText(self.frame, ("%.2f" % (sizeY*100)) + "cm", (self.center[0], yg+(hg//2)), cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                            self.color[self.whichColor], 2, cv2.LINE_AA, False)
-                            
-                    if self.imwrite:
-                        if self.out is None:
-                            self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
-                        self.out.write(self.frame)
-                    
-                    if self.imshow:
-                        cv2.imshow("Drone Cam", self.frame)
-                        if cv2.waitKey(1) & 0xFF == ord('q'):
-                            break
+            # otherwise, read the next frame from the stream
+            (self.grabbed, self.frame) = self.stream.read()
+            if self.grabbed:
+                #self.frame = cv2.flip(self.frame, 1)
+                if self.whichColor is not None:
+                    blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
+                    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+                    mask = cv2.inRange (hsv, self.maskLower, self.maskUpper)
+                    colorcnts = cv2.findContours(mask.copy(),
+                            cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+                    colorcnts = imutils.grab_contours(colorcnts)
+                    if len(colorcnts) > 0:
+                        (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
+                        self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
+                        
+                        # bounding box and line
+                        self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
+                        self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
+                        
+                        
+                        (sizeX,sizeY)= process(self.colorLoc,altitude = 2)
+                        
+                        # X ekseni çizilir
+                        cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color[self.whichColor])
+                        cv2.putText(self.frame, ("%.2f" % (sizeX*100)) + "cm", (xg+(wg//2),self.center[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                                    self.color[self.whichColor], 2, cv2.LINE_AA, False)
+                        
+                        #Y ekseni çizilir
+                        cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color[self.whichColor])
+                        cv2.putText(self.frame, ("%.2f" % (sizeY*100)) + "cm", (self.center[0], yg+(hg//2)), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                        self.color[self.whichColor], 2, cv2.LINE_AA, False)
+                        
+                if self.imwrite:
+                    if self.out is None:
+                        self.out = cv2.VideoWriter(self.fileName,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
+                    self.out.write(self.frame)
+                
+                if self.imshow:
+                    cv2.imshow("Drone Cam", self.frame)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                
+                if self.livestream:
+                    a = pickle.dumps(self.frame)
+                    data = struct.pack("Q", len(a)) + a
+                    self.client_socket.sendall(data)
 
     def read(self):
         # return the frame most recently read
@@ -113,8 +144,8 @@ class ThreadedVideoStream:
             self.maskLower = np.array(self.colorDict[color]["lower_color"], dtype="uint8")
             self.maskUpper = np.array(self.colorDict[color]["upper_color"], dtype="uint8")
         self.whichColor = color
+    
     def stop(self):
-        # indicate that the thread should be stopped
         self.stopped = True
     
     def finish(self):

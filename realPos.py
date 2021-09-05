@@ -67,7 +67,7 @@ def process(loc, altitude=1):
     (xg, yg, wg, hg, cy, cx) = loc
     xg = xg + wg//2
     yg = yg + hg//2
-    size0 = calcRealX(cx*2, xg, altitude)
-    size1 = calcRealY(cy*2, yg, altitude)
+    size0 = abs(calcRealX(cx*2, xg, altitude))
+    size1 = abs(calcRealY(cy*2, yg, altitude))
     return (size0, size1)
     #drawRealPos(img, obj, [size0,size1])

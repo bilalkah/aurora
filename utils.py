@@ -72,6 +72,8 @@ def get_location_metres(original_location, dNorth, dEast):
 
 def get_relative_dNorth_dEast(vehicle, info):
     
+    if info == (0,0,0,0,0,0):
+        return None
     (sizeX,sizeY )= process(info,altitude = vehicle.location.global_relative_frame.alt)
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
