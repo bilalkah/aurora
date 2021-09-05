@@ -105,12 +105,17 @@ class ThreadedVideoStream:
         self.stopped = True
     
     def finish(self):
+        print("before stop")
         self.stop()
+        print("after stop")
         if self.imwrite:
-            self.stream.release()
+            self.out.release()
+        print("after release out")
         if self.imshow:
             cv2.destroyAllWindows()
-        self.out.release()
+        print("after destroy")
+        self.stream.release()
+        print("after release stream")
         print("Exiting ThreadedVideoStream")
         
 
