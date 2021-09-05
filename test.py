@@ -5,7 +5,7 @@ import time
 
 
 if __name__ == "__main__":
-    myThread = ThreadedVideoStream()
+    myThread = ThreadedVideoStream(imwrite=True)
     myThread.setColor("blue")
 
 

@@ -52,14 +52,16 @@ class ThreadedVideoStream:
 
     def update(self):
         # keep looping infinitely until the thread is stopped
+        i = 0
         while True:
             # if the thread indicator variable is set, stop the thread
             if self.stopped is False:
                 
                 # otherwise, read the next frame from the stream
                 (self.grabbed, self.frame) = self.stream.read()
-            
                 if self.grabbed:
+                    i += 1
+                    print(i)
                     #self.frame = cv2.flip(self.frame, 1)
                     if self.whichColor is not None:
                         blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
@@ -106,7 +108,7 @@ class ThreadedVideoStream:
         self.stop()
         if self.imwrite:
             self.stream.release()
-        if self.imshow():
+        if self.imshow:
             cv2.destroyAllWindows()
         self.out.release()
         print("Exiting ThreadedVideoStream")
