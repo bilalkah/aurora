@@ -10,13 +10,15 @@ if __name__ == "__main__":
 
 
     start = time.time()
-    blueStop = False
-    while True:
-        if time.time() - start > 10 and blueStop == False:
-            myThread.setColor("red")
-            blueStop = True
-        if time.time() - start > 20:
-            break
-
-    
-    myThread.finish()
+    i = 5
+    j = 10
+    try:
+        while True:
+            if time.time() - start > i:
+                myThread.setColor("red")
+            elif time.time() - start > j:
+                myThread.setColor("blue")
+                i +=10
+                j +=10
+    except KeyboardInterrupt:
+        myThread.finish()
