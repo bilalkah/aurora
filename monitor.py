@@ -58,7 +58,7 @@ class ThreadedVideoStream:
             
             if self.grabbed:
                 i += 1
-                print(i)
+                
                 self.frame = cv2.flip(self.frame, 1)
                 if self.whichColor is not None:
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
@@ -78,6 +78,7 @@ class ThreadedVideoStream:
                     self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 1, self.frame.shape[:2][::-1],1)
                 self.out.write(self.frame)
                 """
+            print(i)
         return
 
     def read(self):
