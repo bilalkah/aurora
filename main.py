@@ -7,18 +7,14 @@ from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelativ
 from pymavlink import mavutil 
 import time
 import math
-import cv2
 import numpy as np
 import argparse  
 
 #------------------------------------------------------
 # Threading for monitor camera
 from monitor import *
-from queue import Queue
 
-frameQ = Queue(maxsize=0)
-myThread = ThreadedVideoStream(q_out=frameQ)
-myThread2 = ThreadedVideoSave(q_in=frameQ)
+myThread = ThreadedVideoStream(imshow=True)
 
 #------------------------------------------------------
 
@@ -152,9 +148,10 @@ for i in range(len(missions)):
                 if returnVal is not None:
                     poolLocations.append(returnVal)
                     print("Red area detected.")
-                    counterblue = True
+                    counterred = True
+                    myThread.setColor(color=None)
 
-            if counterblue:
+            if counterblue and not counterred:
                 myThread.setColor(color="red")
                 
             print("Distance to target: ", remainingDistance)

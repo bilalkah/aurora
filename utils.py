@@ -76,12 +76,9 @@ def get_relative_dNorth_dEast(vehicle, info):
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
     altitude = vehicle.location.global_relative_frame.alt
-
+    print(info)
     print(wg*hg, "pixel2 detected.")
     if wg*hg >= 1000:
-        (centerY,centerX) = imagedisp.shape[:2]
-        centerY //= 2
-        centerX //= 2
         objX = xg + wg/2
         objY = yg + hg/2
         lengthX = abs(centerX-objX)

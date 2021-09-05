@@ -6,13 +6,16 @@ import imutils
 
 
 class ThreadedVideoStream:
-    def __init__(self, src=0, daemon = True,name="ThreadedVideoStream"):
+    def __init__(self, src=0, imshow=False, imwrite=False, daemon=True, name="ThreadedVideoStream"):
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = cv2.VideoCapture(src)
+        self.imshow = imshow
+        self.imwrite = imwrite
         #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         (self.grabbed, self.frame) = self.stream.read()
+        print("Frame size: ", self.frame.shape)
         # color detection
         self.center = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)/2), int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)/2))
         self.colorDict = {
@@ -48,7 +51,6 @@ class ThreadedVideoStream:
 
     def update(self):
         # keep looping infinitely until the thread is stopped
-        i = 0
         while True:
             # if the thread indicator variable is set, stop the thread
             if self.stopped is False:
@@ -57,8 +59,6 @@ class ThreadedVideoStream:
                 (self.grabbed, self.frame) = self.stream.read()
             
                 if self.grabbed:
-                    i += 1
-                    print(i)
                     #self.frame = cv2.flip(self.frame, 1)
                     if self.whichColor is not None:
                         blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
@@ -73,10 +73,15 @@ class ThreadedVideoStream:
                             self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
                             self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                             self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
-
-                    if self.out is None:
-                        self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
-                    self.out.write(self.frame)
+                    if self.imwrite:
+                        if self.out is None:
+                            self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
+                        self.out.write(self.frame)
+                    
+                    if self.imshow:
+                        cv2.imshow("Drone Cam", self.frame)
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            break
 
     def read(self):
         # return the frame most recently read
@@ -86,7 +91,7 @@ class ThreadedVideoStream:
         return self.colorLoc
 
     def setColor(self,color):
-        if self.color == color:
+        if self.whichColor == color:
             return
         if color is not None:
             self.maskLower = np.array(self.colorDict[color]["lower_color"], dtype="uint8")
@@ -98,7 +103,10 @@ class ThreadedVideoStream:
     
     def finish(self):
         self.stop()
-        self.stream.release()
+        if self.imwrite:
+            self.stream.release()
+        if self.imshow():
+            cv2.destroyAllWindows()
         self.out.release()
         print("Exiting ThreadedVideoStream")
         
