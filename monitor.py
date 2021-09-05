@@ -77,7 +77,6 @@ class ThreadedVideoStream:
                 if self.out is None:
                     self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 2, self.frame.shape[:2][::-1],1)
                 self.out.write(self.frame)
-        return
 
     def read(self):
         # return the frame most recently read
