@@ -144,6 +144,9 @@ class ThreadedVideoStream:
             self.maskLower = np.array(self.colorDict[color]["lower_color"], dtype="uint8")
             self.maskUpper = np.array(self.colorDict[color]["upper_color"], dtype="uint8")
         self.whichColor = color
+        
+    def getColor(self):
+        return self.whichColor
     
     def stop(self):
         self.stopped = True

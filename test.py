@@ -1,20 +1,26 @@
 from monitor import *
 import time 
-
+from math import ceil
 
 
 
 if __name__ == "__main__":
-    myThread = ThreadedVideoStream(livestream=True, stream_address=('10.76.134.247',9999))
+    myThread = ThreadedVideoStream(livestream=True, stream_address=('192.168.137.1',9999))
     myThread.setColor("blue")
 
     start = time.time()
-    i = 10
-
+    i = 0
+    j = 0
     try:
         while True:
-            if  (time.time() - start) > 10:
+            print(myThread.getColor())
+            for i in range(10):
+                time.sleep(1)
+            
+            if myThread.getColor() == "blue":
                 myThread.setColor("red")
+            else:
+                myThread.setColor("blue")
                 
     except KeyboardInterrupt:
         myThread.finish()
