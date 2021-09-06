@@ -23,6 +23,23 @@ def calcRealY(hi, ph, Z):
     Y = ys * Z / f
     return Y
 
+def calcSizePixel(width, height, altitude = 10):
+    s_width = 0.00376 # m
+    s_height = 0.00274 # m
+    focal = 0.00360 # m
+    
+    size = 2.5
+    
+    totalX = s_width * altitude / focal 
+    xsize = width * size / totalX
+    
+    
+    totalY = s_height * altitude/ focal 
+    ysize = height * size / totalY
+    
+    return (xsize, ysize)
+    
+
 """
 @hi: resmin yüksekliği
 @ph: cismin resimdeki bulunduğu piksel

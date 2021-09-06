@@ -80,7 +80,7 @@ def get_relative_dNorth_dEast(vehicle, info):
     (xg,yg,wg,hg,centerY,centerX) = info
     
     print(sizeX*sizeY, "m2 detected.")
-    if sizeX*sizeY >= 2.5*2.5*0.9:
+    if (xg-wg)*(yg-hg) >= 150*150*0.9*0.9:
         objX = xg + wg/2
         objY = yg + hg/2
         lengthX = abs(centerX-objX)
