@@ -5,7 +5,7 @@ from math import ceil
 
 
 if __name__ == "__main__":
-    myThread = ThreadedVideoStream(livestream=True, stream_address=('192.168.137.1',9999))
+    myThread = ThreadedVideoStream(livestream=True, stream_address=('192.168.137.61',9999))
     myThread.setColor("blue")
 
     start = time.time()
