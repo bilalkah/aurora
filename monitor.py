@@ -4,38 +4,60 @@ import cv2
 import numpy as np
 import imutils
 import socket, pickle, struct
+import math
 from realPos import *
+
+class FrameSegment(object):
+    def __init__(self, sock, port = 12345, address = "127.0.0.1"):
+        self.s = sock
+        self.port = port
+        self.addr = address
+    
+    def udp_frame(self, img):
+        MAX_DGRAM = 2**16
+        MAX_IMAGE_DGRAM = MAX_DGRAM - 64
+        compress_img = cv2.imencode('.jpg', img)[1]
+        dat = compress_img.tobytes()
+        size = len(dat)
+        num_of_segments = math.ceil(size/MAX_IMAGE_DGRAM)
+        array_pos_start = 0
+        
+        while num_of_segments:
+            array_pos_end = min(size, array_pos_start + MAX_IMAGE_DGRAM)
+            self.s.sendto(
+                struct.pack("B",num_of_segments) +
+                dat[array_pos_start:array_pos_end],
+                (self.addr, self.port)
+            )
+            array_pos_start = array_pos_end
+            num_of_segments -= 1
 
 class ThreadedVideoStream:
     def __init__(
         self, 
+        vehicle = None,
         src=0, 
         imshow=False,
         windowsName="drone Cam",
         imwrite=False, 
         fileName="drone.avi",
         livestream=False, 
-        stream_address= ('192.168.137.233', 9999),  
+        s_address= '127.0.0.1',  
+        s_port = 12345,
         daemon=True, 
         name="ThreadedVideoStream"
     ):
+        
+        
+        # Server-Client oriented frame transmission
+        # Need to change Server-None orientation (UDP)
         self.livestream = livestream
-        
         if self.livestream:
-            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket_address = stream_address
-            self.server_socket.bind(self.socket_address)
-            try:
-                self.server_socket.listen(5)
-                print("Listening at: ",self.socket_address)
-                self.client_socket, self.addr = self.server_socket.accept()
-                print("Client connected")
-            except (OSError,IOError):
-                print("Server socket error")
-                self.server_socket.close()
-                self.server_socket = None
-                self.livestream = False
-        
+            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.fs = FrameSegment(self.server_socket, s_port, s_address)
+            print("UDP server up")
+            
+        self.vehicle = vehicle
         self.stream = cv2.VideoCapture(src)
         self.imshow = imshow
         self.imwrite = imwrite
@@ -62,8 +84,9 @@ class ThreadedVideoStream:
         self.maskLower = None
         self.maskUpper = None
         self.color = {
-            "blue": (255,0,0),
             "red" : (0,0,255),
+            "green":(0,255,0),
+            "blue": (255,0,0),            
         }
         self.colorLoc = (0,0,0,0,0,0)
           
@@ -103,17 +126,17 @@ class ThreadedVideoStream:
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                         
                         
-                        (sizeX,sizeY)= process(self.colorLoc,altitude = 2)
+                        (sizeX,sizeY)= process(self.colorLoc,altitude = 1) #self.vehicle.location.global_relative_frame.alt
                         
                         # X ekseni çizilir
-                        cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color[self.whichColor])
+                        cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color["green"])
                         cv2.putText(self.frame, ("%.2f" % (sizeX*100)) + "cm", (xg+(wg//2),self.center[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                                    self.color[self.whichColor], 2, cv2.LINE_AA, False)
+                                    self.color["green"], 1, cv2.LINE_AA, False)
                         
                         #Y ekseni çizilir
-                        cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color[self.whichColor])
+                        cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color["green"])
                         cv2.putText(self.frame, ("%.2f" % (sizeY*100)) + "cm", (self.center[0], yg+(hg//2)), cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                        self.color[self.whichColor], 2, cv2.LINE_AA, False)
+                        self.color["green"], 1, cv2.LINE_AA, False)
                         
                 if self.imwrite:
                     if self.out is None:
@@ -126,12 +149,9 @@ class ThreadedVideoStream:
                         break
                 
                 if self.livestream:
-                    a = pickle.dumps(self.frame)
-                    data = struct.pack("Q", len(a)) + a
-                    self.client_socket.sendall(data)
+                    self.fs.udp_frame(self.frame)
 
     def read(self):
-        # return the frame most recently read
         return (self.grabbed,self.frame)
 
     def readLoc(self):
@@ -152,56 +172,20 @@ class ThreadedVideoStream:
         self.stopped = True
     
     def finish(self):
-        print("before stop")
-        self.stop()
-        print("after stop")
+        print("Camera stopped")
+        stop()
+        time.sleep(1)
+        if self.livestream:
+            self.server_socket.close()
+            print("Server socket closed")
         if self.imwrite:
             self.out.release()
-        print("after release out")
+            print("Video released")
         if self.imshow:
             cv2.destroyWindow("Drone Cam")
-        print("after destroy")
+            print("Windows closed")
         self.stream.release()
-        print("after release stream")
+        print("Stream released")
         print("Exiting ThreadedVideoStream")
         
 
-"""
-class ThreadedVideoSave:
-    def __init__(self, q_in=None, videoOutput= "project.avi", daemon = True,name="ThreadedVideoSave"):
-        # initialize queue
-        self.q_in = q_in
-        self.out = None
-        self.videoOutput = videoOutput
-        # initialize the thread name
-        self.name = name
-        # initialize the variable used to indicate if the thread should
-        # be stopped
-        self.daemon = daemon
-        self.stopped = False
-        # start the thread to read frames from the video stream
-        self.t = threading.Thread(name=self.name, target=self.update,daemon=self.daemon, args=())
-        self.t.start()
-        return
-    
-    def update(self):
-        # keep looping infinitely until the thread is stopped
-        while True:
-            # otherwise, read the next frame from the stream
-            if self.q_in.empty() is False:
-                self.frame = self.q_in.get()
-                if self.out is None:
-                    self.out = cv2.VideoWriter(self.videoOutput,cv2.VideoWriter_fourcc(*'DIVX'), 10, self.frame.shape[:2][::-1],1)
-                self.out.write(self.frame)
-        return
-
-    def stop(self):
-        # indicate that the thread should be stopped
-        self.stopped = True
-    
-    def finish(self):
-        while self.q_in.empty() is False:
-            self.out.write(self.q_in.get())
-        self.out.release()
-        print("Exiting ThreadedVideoSave")
-"""

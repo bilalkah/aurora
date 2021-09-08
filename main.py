@@ -10,18 +10,6 @@ import math
 import numpy as np
 import argparse  
 
-#------------------------------------------------------
-# Threading for monitor camera
-from monitor import *
-
-myThread = ThreadedVideoStream(imshow=True,imwrite=True)
-myThread.setColor("blue")
-
-#------------------------------------------------------
-
-
-
-
 
 
 # Count of program time
@@ -30,13 +18,23 @@ programTime = time.time()
 # Arg parser for connecting to the vehicle
 parser = argparse.ArgumentParser(description='Control Copter and send commands in GUIDED mode ')
 parser.add_argument('--connect', 
-                   help="Vehicle connection target string. If not specified, SITL automatically started and used.")
+                   help="Vehicle connection target string.")
 args = parser.parse_args()
 connection_string = args.connect
 
 
 # Vehicle connection
 vehicle = connectCopter(connection_string)
+
+
+#------------------------------------------------------
+# Threading for monitor camera
+from monitor import *
+
+myThread = ThreadedVideoStream(vehicle=vehicle, imshow=True, imwrite=True)
+myThread.setColor("blue")
+
+#------------------------------------------------------
 
 
 # GPS data of waypoints

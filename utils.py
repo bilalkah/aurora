@@ -17,7 +17,10 @@ def arm_and_takeoff(vehicle,mode,aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude.
     """
-
+    # Clear the automode missions
+    cmds = vehicle.commands
+    cmds.clear()
+    
     print("Basic pre-arm checks")
     # Don't let the user try to arm until autopilot is ready
     while not vehicle.is_armable:
@@ -72,14 +75,12 @@ def get_location_metres(original_location, dNorth, dEast):
 
 def get_relative_dNorth_dEast(vehicle, info):
     
-    if info == (0,0,0,0,0,0):
-        return None
     (sizeX,sizeY )= process(info,altitude = vehicle.location.global_relative_frame.alt)
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
     (xg,yg,wg,hg,centerY,centerX) = info
     
-    print(sizeX*sizeY, "m2 detected.")
+    print((xg-wg)*(yg-hg), "pixel2 detected.")
     if (xg-wg)*(yg-hg) >= 150*150*0.9*0.9:
         objX = xg + wg/2
         objY = yg + hg/2

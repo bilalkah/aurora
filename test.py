@@ -5,9 +5,8 @@ from math import ceil
 
 
 if __name__ == "__main__":
-    myThread = ThreadedVideoStream(livestream=True, stream_address=('192.168.137.61',9999))
-    myThread.setColor("red")
-
+    myThread = ThreadedVideoStream(imshow=True)
+    myThread.setColor("blue")
     try:
         while True:
             continue
