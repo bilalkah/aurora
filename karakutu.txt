@@ -1,0 +1,123 @@
+pi@raspberrypi:~/aurora $ py main.py --connect udp:127.0.0.1:14551
+Listening at:  ('192.168.137.195', 9999)
+Client connected
+Connecting to vehicle on: udp:127.0.0.1:14551
+
+Reading mission from file: mission-2-1.waypoints
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0258201 28.8862552 10.0
+0 0 0 0 82 0 1 0.0 0.0 0.0 0.0 41.0259314 28.8860835 10.0
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0259739 28.8858381 10.0
+
+Reading mission from file: mission-2-2.waypoints
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0253446 28.8856302 10.0
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0252899 28.8859011 10.0
+0 0 0 0 82 0 1 0.0 0.0 0.0 0.0 41.0254286 28.8861184 10.0
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0257118 28.8862243 10.0
+0 0 0 0 82 0 1 0.0 0.0 0.0 0.0 41.0259263 28.8861144 10.0
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0259739 28.8858582 10.0
+
+Reading mission from file: mission-2-3.waypoints
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0253415 28.8856342 10.0
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0252889 28.8859038 10.0
+0 0 0 0 82 0 1 0.0 0.0 0.0 0.0 41.0254417 28.8861318 10.0
+0 0 0 0 16 0 1 0.0 0.0 0.0 0.0 41.0255732 28.886172 10.0
+Basic pre-arm checks
+Arming motors
+ Waiting for arming...
+Taking off!
+ Altitude:  0.038
+ Altitude:  0.097
+ Altitude:  0.399
+WARNING:autopilot:EKF2 IMU0 ground mag anomaly, yaw re-aligned
+ Altitude:  2.226
+ Altitude:  4.201
+ Altitude:  6.438
+ Altitude:  8.614
+CRITICAL:autopilot:GPS Glitch
+ Altitude:  9.699
+Reached target altitude
+Setting ground speed to 10
+Mission 0 started.
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0258201      28.8862552      10.0
+Distance to target:  30.841579266653817
+CRITICAL:autopilot:EKF variance
+WARNING:autopilot:Mode change failed: BRAKE requires position
+WARNING:autopilot:Mode change failed: LOITER requires position
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0259314      28.8860835      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0259739      28.8858381      10.0
+Mission 1 started.
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0253446      28.8856302      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0252899      28.8859011      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0254286      28.8861184      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0257118      28.8862243      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0259263      28.8861144      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0259739      28.8858582      10.0
+Mission 2 started.
+Setting ground speed to 5
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0253415      28.8856342      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0252889      28.8859038      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0254417      28.8861318      10.0
+
+Target GPS locations:
+Lat             Lon             Alt
+41.0255732      28.886172       10.0
+Landing..
+ Altitude:  9.662
+WARNING:autopilot:Mode change failed: AUTO requires position
+ Altitude:  9.625
+ Altitude:  9.614
+ Altitude:  9.549
+ Altitude:  9.157
+ Altitude:  8.749
+ Altitude:  8.282
+ Altitude:  7.939
+ Altitude:  7.444
+ Altitude:  7.154
+ Altitude:  7.097
+ Altitude:  6.425
+ Altitude:  5.317
+ Altitude:  4.607
+ Altitude:  4.568
+ Altitude:  3.741
+ Altitude:  3.202
+ Altitude:  2.548
+ Altitude:  2.031
+ Altitude:  1.449
+ Altitude:  0.984
+client_loop: send disconnect: Connection reset
