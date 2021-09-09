@@ -42,7 +42,7 @@ class ThreadedVideoStream:
         imwrite=False, 
         fileName="drone.avi",
         livestream=False, 
-        s_address= '127.0.0.1',  
+        s_address= '192.168.43.233',  
         s_port = 12345,
         daemon=True, 
         name="ThreadedVideoStream"
@@ -130,7 +130,7 @@ class ThreadedVideoStream:
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                         
                         
-                        (sizeX,sizeY)= process(self.colorLoc, 1) #self.vehicle.location.global_relative_frame.alt
+                        (sizeX,sizeY)= process(self.colorLoc, self.vehicle.location.global_relative_frame.alt if vehicle is not None else 1) #self.vehicle.location.global_relative_frame.alt
                         
                         # X ekseni çizilir
                         cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color["green"])

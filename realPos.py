@@ -37,7 +37,7 @@ def calcSizePixel(width, height, altitude = 10):
     totalY = s_height * altitude/ focal 
     ysize = height * size / totalY
     
-    return (xsize, ysize)
+    return xsize*ysize
     
 
 """

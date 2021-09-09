@@ -15,7 +15,7 @@ def dump_buffer(s):
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 def main():
-    s.bind(('127.0.0.1',12345))
+    s.bind(('192.168.43.233',12345))
     dat = b''
     dump_buffer(s)
     while True:

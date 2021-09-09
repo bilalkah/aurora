@@ -78,7 +78,7 @@ for i in range(len(missions)):
 
         for j in range(len(poolLocations)):
             
-            descendAlt = 0.75
+            descendAlt = 3.0
             targetLocation = poolLocations[j]
             vehicle.simple_goto(targetLocation)
             targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
