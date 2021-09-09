@@ -109,6 +109,10 @@ class ThreadedVideoStream:
             (self.grabbed, self.frame) = self.stream.read()
             if self.grabbed:
                 #self.frame = cv2.flip(self.frame, 1)
+                start = time.time()
+                if self.vehicle is not None:
+                    cv2.putText(self.frame, ("Altitude: %.2f" % (self.vehicle.location.global_relative_frame.alt)) + "cm", (0,0), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                    self.color["green"], 1, cv2.LINE_AA, False)
                 if self.whichColor is not None:
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
                     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -117,16 +121,16 @@ class ThreadedVideoStream:
                             cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
                     colorcnts = imutils.grab_contours(colorcnts)
+                    
                     if len(colorcnts) > 0:
                         (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
                         self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
-                        
                         # bounding box and line
                         self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                         
                         
-                        (sizeX,sizeY)= process(self.colorLoc,altitude = 1) #self.vehicle.location.global_relative_frame.alt
+                        (sizeX,sizeY)= process(self.colorLoc, 1) #self.vehicle.location.global_relative_frame.alt
                         
                         # X ekseni çizilir
                         cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color["green"])
@@ -137,7 +141,7 @@ class ThreadedVideoStream:
                         cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color["green"])
                         cv2.putText(self.frame, ("%.2f" % (sizeY*100)) + "cm", (self.center[0], yg+(hg//2)), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                         self.color["green"], 1, cv2.LINE_AA, False)
-                        
+                                            
                 if self.imwrite:
                     if self.out is None:
                         self.out = cv2.VideoWriter(self.fileName,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
@@ -147,9 +151,11 @@ class ThreadedVideoStream:
                     cv2.imshow("Drone Cam", self.frame)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
+                    
                 
                 if self.livestream:
                     self.fs.udp_frame(self.frame)
+            print("işlem: %.2f" % (time.time() - start))
 
     def read(self):
         return (self.grabbed,self.frame)
@@ -173,17 +179,17 @@ class ThreadedVideoStream:
     
     def finish(self):
         print("Camera stopped")
-        stop()
+        self.stop()
         time.sleep(1)
         if self.livestream:
-            self.server_socket.close()
             print("Server socket closed")
+            self.server_socket.close()
         if self.imwrite:
-            self.out.release()
             print("Video released")
+            self.out.release()
         if self.imshow:
-            cv2.destroyWindow("Drone Cam")
             print("Windows closed")
+            #cv2.destroyAllWindows()
         self.stream.release()
         print("Stream released")
         print("Exiting ThreadedVideoStream")

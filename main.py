@@ -31,7 +31,7 @@ vehicle = connectCopter(connection_string)
 # Threading for monitor camera
 from monitor import *
 
-myThread = ThreadedVideoStream(vehicle=vehicle, imshow=True, imwrite=True)
+myThread = ThreadedVideoStream(vehicle=vehicle, imwrite=True, livestream=True)
 myThread.setColor("blue")
 
 #------------------------------------------------------
