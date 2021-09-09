@@ -109,7 +109,6 @@ class ThreadedVideoStream:
             (self.grabbed, self.frame) = self.stream.read()
             if self.grabbed:
                 #self.frame = cv2.flip(self.frame, 1)
-                start = time.time()
                 if self.vehicle is not None:
                     cv2.putText(self.frame, ("Altitude: %.2f" % (self.vehicle.location.global_relative_frame.alt)) + "cm", (0,0), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                     self.color["green"], 1, cv2.LINE_AA, False)
@@ -130,7 +129,7 @@ class ThreadedVideoStream:
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                         
                         
-                        (sizeX,sizeY)= process(self.colorLoc, self.vehicle.location.global_relative_frame.alt if vehicle is not None else 1) #self.vehicle.location.global_relative_frame.alt
+                        (sizeX,sizeY)= process(self.colorLoc, self.vehicle.location.global_relative_frame.alt if self.vehicle is not None else 1) #self.vehicle.location.global_relative_frame.alt
                         
                         # X ekseni çizilir
                         cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color["green"])
@@ -155,7 +154,6 @@ class ThreadedVideoStream:
                 
                 if self.livestream:
                     self.fs.udp_frame(self.frame)
-            print("işlem: %.2f" % (time.time() - start))
 
     def read(self):
         return (self.grabbed,self.frame)

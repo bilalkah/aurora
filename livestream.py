@@ -36,8 +36,4 @@ try:
 except KeyboardInterrupt:
     cv2.destroyAllWindows()
     s.close()
-except socket.gaierror():
-    print("Socket error")
-    cv2.destroyAllWindows()
-    s.close()
     
