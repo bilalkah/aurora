@@ -163,16 +163,14 @@ class ThreadedVideoStream:
                     self.color["green"], 1, self.line, False)
                     
                     # down - left corner
-                    cv2.putText(self.frame, str(self.vehicle.battery), (10,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
-                    self.color["green"], 1, self.line, False)
                     if type(self.vehicle.location.global_relative_frame) is LocationGlobal and self.vehicle.location.global_relative_frame is not None:
-                        cv2.putText(self.frame, ("Lat: %.3f" %self.vehicle.location.global_frame.lat+" Lon: %.3f" %self.vehicle.location.global_frame.lon+ " Alt: %.3f" %self.vehicle.location.global_frame.alt), (10,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        cv2.putText(self.frame, ("Lat: %.3f" %self.vehicle.location.global_frame.lat+" Lon: %.3f" %self.vehicle.location.global_frame.lon+ " Alt: %.3f" %self.vehicle.location.global_frame.alt), (10,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                             self.color["green"], 1, self.line, False)
                     elif type(self.vehicle.location.global_relative_frame) is LocationGlobalRelative and self.vehicle.location.global_relative_frame is not None:
-                        cv2.putText(self.frame, ("Lat: %.3f" %self.vehicle.location.global_relative_frame.lat+" Lon: %.3f" %self.vehicle.location.global_relative_frame.lon+ " Alt: %.3f" %self.vehicle.location.global_relative_frame.alt), (10,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        cv2.putText(self.frame, ("Lat: %.3f" %self.vehicle.location.global_relative_frame.lat+" Lon: %.3f" %self.vehicle.location.global_relative_frame.lon+ " Alt: %.3f" %self.vehicle.location.global_relative_frame.alt), (10,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                             self.color["green"], 1, self.line, False)
                     if self.vehicle.location.local_frame.north is not None and self.vehicle.location.local_frame.east is not None and self.vehicle.location.local_frame.down is not None:
-                        cv2.putText(self.frame, ("North: %.3f" %self.vehicle.location.local_frame.north+" East: %.3f"%self.vehicle.location.local_frame.east+ " Down: %.3f" %self.vehicle.location.local_frame.down), (10,self.center[1]*2-50), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        cv2.putText(self.frame, ("North: %.3f" %self.vehicle.location.local_frame.north+" East: %.3f"%self.vehicle.location.local_frame.east+ " Down: %.3f" %self.vehicle.location.local_frame.down), (10,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                             self.color["green"], 1, self.line, False)
                     
                     #down - right corner
