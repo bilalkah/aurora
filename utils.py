@@ -82,8 +82,8 @@ def get_relative_dNorth_dEast(vehicle, info):
     headingAngle = vehicle.heading
     (xg,yg,wg,hg,centerY,centerX) = info
     area51 = abs(calcSizePixel(centerX * 2, centerY * 2, vehicle.location.global_relative_frame.alt))
-    print((xg-wg)*(yg-hg), "pixel2 detected.")
-    if (xg-wg)*(yg-hg) >= area51*0.8*0.8:
+    print((wg)*(hg), "pixel2 detected.")
+    if (wg)*(hg) >= area51*0.8*0.8:
         objX = xg + wg//2
         objY = yg + hg//2
         lengthX = abs(centerX-objX)

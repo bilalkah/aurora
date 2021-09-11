@@ -79,7 +79,7 @@ for i in range(len(missions)):
 
         for j in range(len(poolLocations)):
             
-            descendAlt = 3.0
+            descendAlt = 4.0
             targetLocation = poolLocations[j]
             vehicle.simple_goto(targetLocation)
             targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
@@ -99,7 +99,7 @@ for i in range(len(missions)):
             else:
                 print("Descending to release water.")
             
-            vehicle.simple_goto(LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, descendAlt))
+            vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, descendAlt))
             while True:
                 print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
                 if vehicle.location.global_relative_frame.alt<=descendAlt*1.05: 
@@ -107,7 +107,7 @@ for i in range(len(missions)):
                     break
                 time.sleep(1)
             time.sleep(10)
-            vehicle.simple_goto(LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, ascendAlt))
+            vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, ascendAlt))
             if j == 0:
                 print("Water has been taken. Getting on the rise.")
             else:
@@ -133,6 +133,9 @@ for i in range(len(missions)):
         targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
         if i == 1 and j == 0:
             myThread.setColor(color="blue")
+            set_ground_speed(vehicle, 3)
+        if i == 1 and j == 1:
+            set_ground_speed(vehicle, 10)
         while vehicle.mode.name=="GUIDED": 
 
             remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)

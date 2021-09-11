@@ -2,3 +2,4 @@ __pycache__
 mav*
 *.avi
 .vscode
+test/
