@@ -83,7 +83,7 @@ def arm_and_takeoff(aTargetAltitude):
 
 
 #Arm and take of to altitude of 5 meters
-arm_and_takeoff(5)
+arm_and_takeoff(10)
 
 
 
@@ -190,6 +190,9 @@ vehicle.groundspeed=5
 
 print("Position North 10")
 goto(10, 0)
+time.sleep(1)
+myThread.setColor("red")
+time.sleep(1)
 
 print("Position South 5 East 10")
 goto(-5, 10)
