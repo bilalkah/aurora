@@ -31,7 +31,7 @@ vehicle = connectCopter(connection_string)
 # Threading for monitor camera
 from monitor import *
 
-myThread = ThreadedVideoStream(vehicle=vehicle, imshow=True)
+myThread = ThreadedVideoStream(vehicle=vehicle, imwrite=True, imshow=True)
 myThread.setColor("blue")
 
 #------------------------------------------------------
@@ -73,6 +73,7 @@ counterred = False
 for i in range(len(missions)):
     print("Mission "+str(i)+" started.")
     
+    """
     if i == 2:
         set_ground_speed(vehicle, 5)
 
@@ -117,7 +118,7 @@ for i in range(len(missions)):
                     print("Reached target altitude.")
                     break
                 time.sleep(1)
-        
+        """
 
     for j in range(len(missions[i])):
         print("\nTarget GPS locations:\nLat\t\tLon\t\tAlt")
@@ -140,7 +141,9 @@ for i in range(len(missions)):
                 if returnVal is not None:
                     myThread.setColor("red")
                     poolLocations.insert(0, returnVal)
+                    print("*******************")
                     print("Blue area detected.")
+                    print("*******************")
                     counterblue = True
                     time.sleep(0.1)
                     
@@ -149,7 +152,9 @@ for i in range(len(missions)):
                 if returnVal is not None:
                     myThread.setColor(color=None)
                     poolLocations.append(returnVal)
+                    print("*******************")
                     print("Red area detected.")
+                    print("*******************")
                     counterred = True
                     time.sleep(0.1)
                 
@@ -184,4 +189,4 @@ print("Disarmed.")
 vehicle.close()
 print("Vehicle closed.")
 
-myThread.stop()
+myThread.finish()

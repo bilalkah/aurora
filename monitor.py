@@ -110,7 +110,7 @@ class ThreadedVideoStream:
             if self.grabbed:
                 #self.frame = cv2.flip(self.frame, 1)
                 if self.vehicle is not None:
-                    cv2.putText(self.frame, ("Altitude: %.2f" % (self.vehicle.location.global_relative_frame.alt)) + "cm", (0,0), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                    cv2.putText(self.frame, ("Altitude: %.2f" % (self.vehicle.location.global_relative_frame.alt)) + "cm", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                     self.color["green"], 1, cv2.LINE_AA, False)
                 if self.whichColor is not None:
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
