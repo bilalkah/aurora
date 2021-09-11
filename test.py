@@ -21,7 +21,7 @@ if __name__ == "__main__":
     myThread.setColor("blue")
     try:
         while True:
-            print("Boş durma aq")
+            print("Bekle")
             time.sleep(5)
             continue
                 
