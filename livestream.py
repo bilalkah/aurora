@@ -16,7 +16,7 @@ def dump_buffer(s):
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(('192.168.43.233',12345))
+    s.bind(('127.0.0.1',12345))
     dat = b''
     dump_buffer(s)
     while True:
@@ -32,12 +32,13 @@ def main():
                     break
                 dat = b''
         except KeyboardInterrupt:
+            s.close()
             break
         except BaseException as e:    
             print("hata, "+str(e))
             s.close()
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.bind(('192.168.43.233',12345))
+            s.bind(('127.0.0.1',12345))
             dat = b''
             dump_buffer(s)
 try:

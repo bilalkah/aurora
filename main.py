@@ -145,7 +145,8 @@ for i in range(len(missions)):
                     print("Blue area detected.")
                     print("*******************")
                     counterblue = True
-                    time.sleep(0.1)
+                    myThread.setLoc()
+                    time.sleep(1)
                     
             elif i == 1 and j == 0 and counterred is False:
                 returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc())
@@ -156,7 +157,7 @@ for i in range(len(missions)):
                     print("Red area detected.")
                     print("*******************")
                     counterred = True
-                    time.sleep(0.1)
+                    time.sleep(1)
                 
             print("Distance to target: ", remainingDistance)
             if remainingDistance<=targetDistance*0.05 or remainingDistance < 0.15: 

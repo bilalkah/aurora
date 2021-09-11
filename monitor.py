@@ -6,6 +6,7 @@ import imutils
 import socket, pickle, struct
 import math
 from realPos import *
+from dronekit import LocationGlobal, LocationGlobalRelative
 
 class FrameSegment(object):
     def __init__(self, sock, port = 12345, address = "127.0.0.1"):
@@ -64,7 +65,8 @@ class ThreadedVideoStream:
         self.fileName = fileName
         self.windowsName = windowsName
         self.out = None
-        
+        self.line = cv2.LINE_AA
+        self.fontscale = 0.5
         (self.grabbed, self.frame) = self.stream.read()
         if self.grabbed:
             print("Frame size: ", self.frame.shape)
@@ -109,9 +111,7 @@ class ThreadedVideoStream:
             (self.grabbed, self.frame) = self.stream.read()
             if self.grabbed:
                 #self.frame = cv2.flip(self.frame, 1)
-                if self.vehicle is not None:
-                    cv2.putText(self.frame, ("Altitude: %.2f" % (self.vehicle.location.global_relative_frame.alt)) + "cm", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, 
-                    self.color["green"], 1, cv2.LINE_AA, False)
+                
                 if self.whichColor is not None:
                     blurred = cv2.GaussianBlur(self.frame, (31, 31), 0)
                     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -140,6 +140,54 @@ class ThreadedVideoStream:
                         cv2.line(self.frame, (self.center[0],self.center[1]), (self.center[0], yg+(hg//2)), self.color["green"])
                         cv2.putText(self.frame, ("%.2f" % (sizeY*100)) + "cm", (self.center[0], yg+(hg//2)), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                         self.color["green"], 1, cv2.LINE_AA, False)
+                        
+                if self.vehicle is not None:
+                    # up - left corner
+                    cv2.putText(self.frame, ("Altitude: %.2f" % (self.vehicle.location.global_relative_frame.alt)) + "cm", (10,20), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, str(self.vehicle.gps_0), (10,40), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, "EKF: "+str(self.vehicle.ekf_ok), (10,60), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, "Mode: %s" % self.vehicle.mode.name, (10,80), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, "Armed: %s" % self.vehicle.armed, (10,100), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    
+                    # up - right corner
+                    cv2.putText(self.frame, "Roll: %.3f" % self.vehicle.attitude.roll + " Pitch: %.3f" % self.vehicle.attitude.pitch + " Yaw: %.3f" % self.vehicle.attitude.yaw, (self.center[0]*2-325,20), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, "Groundspeed: %.3f" % self.vehicle.groundspeed, (self.center[0]*2-180,40), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, "Airspeed: %.3f" % self.vehicle.airspeed, (self.center[0]*2-180,60), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    
+                    # down - left corner
+                    cv2.putText(self.frame, str(self.vehicle.battery), (10,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    self.color["green"], 1, self.line, False)
+                    if type(self.vehicle.location.global_relative_frame) is LocationGlobal and self.vehicle.location.global_relative_frame is not None:
+                        cv2.putText(self.frame, ("Lat: %.3f" %self.vehicle.location.global_frame.lat+" Lon: %.3f" %self.vehicle.location.global_frame.lon+ " Alt: %.3f" %self.vehicle.location.global_frame.alt), (10,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                            self.color["green"], 1, self.line, False)
+                    elif type(self.vehicle.location.global_relative_frame) is LocationGlobalRelative and self.vehicle.location.global_relative_frame is not None:
+                        cv2.putText(self.frame, ("Lat: %.3f" %self.vehicle.location.global_relative_frame.lat+" Lon: %.3f" %self.vehicle.location.global_relative_frame.lon+ " Alt: %.3f" %self.vehicle.location.global_relative_frame.alt), (10,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                            self.color["green"], 1, self.line, False)
+                    if self.vehicle.location.local_frame.north is not None and self.vehicle.location.local_frame.east is not None and self.vehicle.location.local_frame.down is not None:
+                        cv2.putText(self.frame, ("North: %.3f" %self.vehicle.location.local_frame.north+" East: %.3f"%self.vehicle.location.local_frame.east+ " Down: %.3f" %self.vehicle.location.local_frame.down), (10,self.center[1]*2-50), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                            self.color["green"], 1, self.line, False)
+                    
+                    #down - right corner
+                    
+                    # north arrow
+                    radius = 150
+                    self.frame = cv2.circle(self.frame, self.center, math.ceil(radius/15), self.color["green"], 1)
+
+                    theta = (- self.vehicle.heading - 90) * 3.14 / 180.0
+                    north = (math.ceil(self.center[0] + radius * math.cos(theta)), math.ceil(self.center[1] + radius * math.sin(theta)))
+                    cv2.putText(self.frame, "N", (north[0] - 10, north[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                                    self.color["green"], 1, cv2.LINE_AA, False)
+                    cv2.arrowedLine(self.frame, self.center, north, self.color["green"])
+                    img = cv2.putText(self.frame, "%.2f"%((theta*180/3.14+90)%360), (self.center[0]-10, self.center[1] + 40), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        self.color["green"], 1, cv2.LINE_AA, False)
                                             
                 if self.imwrite:
                     if self.out is None:
@@ -160,6 +208,9 @@ class ThreadedVideoStream:
 
     def readLoc(self):
         return self.colorLoc
+    
+    def setLoc(self):
+        self.colorLoc = (0,0,0,0,0,0)
 
     def setColor(self,color):
         if self.whichColor == color:
