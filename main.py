@@ -73,7 +73,7 @@ counterred = False
 for i in range(len(missions)):
     print("Mission "+str(i)+" started.")
     
-    """
+    
     if i == 2:
         set_ground_speed(vehicle, 5)
 
@@ -118,7 +118,7 @@ for i in range(len(missions)):
                     print("Reached target altitude.")
                     break
                 time.sleep(1)
-        """
+        
 
     for j in range(len(missions[i])):
         print("\nTarget GPS locations:\nLat\t\tLon\t\tAlt")
