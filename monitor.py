@@ -174,6 +174,9 @@ class ThreadedVideoStream:
                             self.color["green"], 1, self.line, False)
                     
                     #down - right corner
+                    # print current time down right corner of self.frame
+                    cv2.putText(self.frame, time.strftime("%H:%M:%S"), (self.center[0]*2-90,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        self.color["green"], 1, self.line, False)
                     
                     # north arrow
                     radius = 150
