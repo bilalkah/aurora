@@ -3,7 +3,7 @@ from monitor import *
 import time 
 from math import ceil
 import argparse  
-
+from servo import *
 
 if __name__ == "__main__":
     """# Arg parser for connecting to the vehicle
@@ -16,9 +16,19 @@ if __name__ == "__main__":
 
     # Vehicle connection
     vehicle = connectCopter(connection_string)"""
-    
-    myThread = ThreadedVideoStream(vehicle = None, imwrite=True, imshow=True,livestream=True, s_address='192.168.43.233')
+    """
+    myThread = ThreadedVideoStream(vehicle = None, imwrite=True, imshow=True,livestream=True, s_address='127.0.0.1')
     myThread.setColor("blue")
+    """
+    servo = Servo()
+    time.sleep(5)
+    servo.change_duty(1500)
+    time.sleep(5)
+    servo.change_duty(1000)
+    time.sleep(5)
+    servo.change_duty(2000)
+    time.sleep(5)
+    """
     try:
         while True:
             print("Bekle")
@@ -27,4 +37,4 @@ if __name__ == "__main__":
                 
     except KeyboardInterrupt:
         myThread.finish()
-        
+    """

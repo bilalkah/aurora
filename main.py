@@ -88,7 +88,7 @@ for i in range(len(missions)):
             while vehicle.mode.name=="GUIDED": 
 
                 remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
-                print("Distance to target: ", remainingDistance)
+                print(" Distance to target: ", remainingDistance)
                 if remainingDistance<=targetDistance*0.05 or remainingDistance < 0.15: 
                     print("Reached target")
                     break;
@@ -122,6 +122,9 @@ for i in range(len(missions)):
 
     for j in range(len(missions[i])):
         count = 0
+        if i == 1 and j == 0:
+            myThread.setColor(color="blue")
+            set_ground_speed(vehicle, 2)
         print("\nTarget GPS locations:\nLat\t\tLon\t\tAlt")
         print(str(missions[i][j][0])+"\t"+str(missions[i][j][1])+"\t"+str(missions[i][j][2]))
         
@@ -132,9 +135,7 @@ for i in range(len(missions)):
         
         vehicle.simple_goto(targetLocation)
         targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
-        if i == 1 and j == 0:
-            myThread.setColor(color="blue")
-            set_ground_speed(vehicle, 2)
+        
         if i == 1 and j == 1:
             set_ground_speed(vehicle, 10)
         while vehicle.mode.name=="GUIDED": 
@@ -163,10 +164,10 @@ for i in range(len(missions)):
                     time.sleep(1)
             count += 1
             if count %5 == 0:
-                print("Distance to target: ", remainingDistance)
+                print(" Distance to target: ", remainingDistance)
             if remainingDistance<=targetDistance*0.05 or remainingDistance < 0.15: 
                 print("Reached target.")
-                break;
+                break
             time.sleep(0.5)
 
 # Land the vehicle
