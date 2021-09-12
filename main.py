@@ -155,7 +155,6 @@ for i in range(len(missions)):
             elif i == 1 and j == 0 and counterred is False:
                 returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc())
                 if returnVal is not None:
-                    myThread.setColor(color=None)
                     poolLocations.append(returnVal)
                     print("*******************")
                     print("Red area detected.")
