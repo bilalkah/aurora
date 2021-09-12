@@ -83,7 +83,7 @@ def get_relative_dNorth_dEast(vehicle, info):
     (xg,yg,wg,hg,centerY,centerX) = info
     area51 = abs(calcSizePixel(centerX * 2, centerY * 2, vehicle.location.global_relative_frame.alt))
     print((wg)*(hg), "pixel2 detected.")
-    if (wg)*(hg) >= area51*0.8*0.8:
+    if (wg)*(hg) >= area51*0.9*0.9:
         objX = xg + wg//2
         objY = yg + hg//2
         lengthX = abs(centerX-objX)
