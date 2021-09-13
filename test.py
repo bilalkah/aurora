@@ -3,6 +3,7 @@ from monitor import *
 import time 
 from math import ceil
 import argparse  
+from servo import *
 #from servo import *
 
 if __name__ == "__main__":
