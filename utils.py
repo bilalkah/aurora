@@ -73,7 +73,68 @@ def get_location_metres(original_location, dNorth, dEast):
         
     return targetlocation
 
-def get_relative_dNorth_dEast(vehicle, info):
+def fixPosition(vehicle, info):
+    if info == (0,0,0,0,0,0):
+        return
+    (sizeX,sizeY )= process(info,altitude = vehicle.location.global_relative_frame.alt)
+    hipotenuse = math.sqrt(sizeX**2+sizeY**2)
+    if hipotenuse > 0.3:
+        currentLocation = vehicle.location.global_relative_frame
+        headingAngle = vehicle.heading
+        (xg,yg,wg,hg,centerY,centerX) = info
+        objX = xg + wg//2
+        objY = yg + hg//2
+        lengthX = abs(centerX-objX)
+        lengthY = abs(centerY-objY)
+        radianOfObj = math.atan2(lengthY, lengthX)
+        angleOfObj = math.degrees(radianOfObj)
+                
+        dNorth , dEast = 0,0
+        if centerX < objX and centerY > objY:
+            angleOfObj = 90 - angleOfObj
+        elif centerX < objX and centerY <= objY:
+            angleOfObj = 90 + angleOfObj
+        elif centerX >= objX and centerY < objY:
+            angleOfObj = 270 - angleOfObj
+        elif centerX > objX and centerY >= objY:
+            angleOfObj = 270 + angleOfObj
+                    
+        NorthToTargetAngle = angleOfObj + headingAngle
+        NorthToTargetAngle %= 360
+                
+        if NorthToTargetAngle > 0 and NorthToTargetAngle <= 90:
+            dNorth = 1
+            dEast = 1
+            NorthToTargetAngle = 90 - NorthToTargetAngle
+        elif NorthToTargetAngle > 90 and NorthToTargetAngle <= 180:
+            dNorth = -1
+            dEast = 1
+            NorthToTargetAngle = NorthToTargetAngle - 90  
+        elif NorthToTargetAngle > 180 and NorthToTargetAngle <= 270:
+            dNorth = -1
+            dEast = -1
+            NorthToTargetAngle = 270 - NorthToTargetAngle
+        elif NorthToTargetAngle > 270 and NorthToTargetAngle <= 360:
+            dNorth = 1
+            dEast = -1
+            NorthToTargetAngle = NorthToTargetAngle - 270
+        dNorth *= hipotenuse*math.sin(math.radians(NorthToTargetAngle))
+        dEast *= hipotenuse*math.cos(math.radians(NorthToTargetAngle))
+        targetLocation = get_location_metres(currentLocation, dNorth, dEast)
+        targetDistance = get_distance_metres(currentLocation, targetLocation)
+        vehicle.simple_goto(targetLocation)
+        
+        while vehicle.mode.name=="GUIDED": #Stop action if we are no longer in guided mode.
+            #print "DEBUG: mode: %s" % vehicle.mode.name
+            remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
+            print("Distance to target: ", remainingDistance)
+            if remainingDistance<=targetDistance*0.01: #Just below target, in case of undershoot.
+                print("Reached target")
+                break;
+            time.sleep(2)
+        
+        
+def get_relative_dNorth_dEast(vehicle, info,trueSize):
     
     if info == (0,0,0,0,0,0):
         return None
@@ -81,7 +142,7 @@ def get_relative_dNorth_dEast(vehicle, info):
     currentLocation = vehicle.location.global_relative_frame
     headingAngle = vehicle.heading
     (xg,yg,wg,hg,centerY,centerX) = info
-    area51 = abs(calcSizePixel(centerX * 2, centerY * 2, vehicle.location.global_relative_frame.alt))
+    area51 = abs(calcSizePixel(centerX * 2, centerY * 2, vehicle.location.global_relative_frame.alt, trueSize))
     print((wg)*(hg), "pixel2 detected.")
     if (wg)*(hg) >= area51*0.9*0.9:
         objX = xg + wg//2
@@ -162,4 +223,6 @@ def readmission(aFileName):
 def set_ground_speed(vehicle, speed):
     print("Setting ground speed to " + str(speed))
     vehicle.groundspeed = speed
+    
+
 

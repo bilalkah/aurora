@@ -52,6 +52,7 @@ class ThreadedVideoStream:
         
         # Server-Client oriented frame transmission
         # Need to change Server-None orientation (UDP)
+        # Changed !!
         self.livestream = livestream
         if self.livestream:
             self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -67,6 +68,7 @@ class ThreadedVideoStream:
         self.out = None
         self.line = cv2.LINE_AA
         self.fontscale = 0.5
+        
         (self.grabbed, self.frame) = self.stream.read()
         if self.grabbed:
             print("Frame size: ", self.frame.shape)
@@ -82,6 +84,7 @@ class ThreadedVideoStream:
                 "upper_color" : [179, 255, 255],
             },
         }
+        
         self.whichColor = None
         self.maskLower = None
         self.maskUpper = None
@@ -91,7 +94,8 @@ class ThreadedVideoStream:
             "blue": (255,0,0),            
         }
         self.colorLoc = (0,0,0,0,0,0)
-          
+        self.red = False
+        self.blue = False
         # threading
         self.name = name
         self.daemon = daemon
@@ -124,12 +128,13 @@ class ThreadedVideoStream:
                     if len(colorcnts) > 0:
                         (xg,yg,wg,hg) = cv2.boundingRect(max(colorcnts, key=cv2.contourArea))
                         self.colorLoc = (xg,yg,wg,hg,self.center[0],self.center[1])
+                        
                         # bounding box and line
                         self.frame = cv2.rectangle(self.frame,(xg,yg),(xg+wg, yg+hg),self.color[self.whichColor],2)
                         self.frame = cv2.line(self.frame,(self.center[0],self.center[1]),(xg+(wg//2),yg+(hg//2)),self.color[self.whichColor],2)
                         
                         
-                        (sizeX,sizeY)= process(self.colorLoc, self.vehicle.location.global_relative_frame.alt if self.vehicle is not None else 1) #self.vehicle.location.global_relative_frame.alt
+                        (sizeX,sizeY)= process(self.colorLoc, self.vehicle.location.global_relative_frame.alt if self.vehicle is not None else 1)
                         
                         # X ekseni çizilir
                         cv2.line(self.frame, (self.center[0],self.center[1]), (xg+(wg//2),self.center[1]), self.color["green"])
@@ -173,8 +178,12 @@ class ThreadedVideoStream:
                         cv2.putText(self.frame, ("North: %.3f" %self.vehicle.location.local_frame.north+" East: %.3f"%self.vehicle.location.local_frame.east+ " Down: %.3f" %self.vehicle.location.local_frame.down), (10,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                             self.color["green"], 1, self.line, False)
                     
-                    #down - right corner
+                    # down - right corner
                     # print current time down right corner of self.frame
+                    cv2.putText(self.frame, ("Blue found: ", self.blue), (self.center[0]*2-90,self.center[1]*2-50), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        self.color["green"], 1, self.line, False)
+                    cv2.putText(self.frame, ("Red found: ", self.red), (self.center[0]*2-90,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                        self.color["green"], 1, self.line, False)
                     cv2.putText(self.frame, time.strftime("%H:%M:%S"), (self.center[0]*2-90,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                         self.color["green"], 1, self.line, False)
                     
@@ -192,7 +201,7 @@ class ThreadedVideoStream:
                                             
                 if self.imwrite:
                     if self.out is None:
-                        self.out = cv2.VideoWriter(self.fileName,cv2.VideoWriter_fourcc(*'DIVX'), 11, self.frame.shape[:2][::-1],1)
+                        self.out = cv2.VideoWriter(self.fileName,cv2.VideoWriter_fourcc(*'DIVX'), 20, self.frame.shape[:2][::-1],1)
                     self.out.write(self.frame)
                 
                 if self.imshow:
@@ -200,7 +209,6 @@ class ThreadedVideoStream:
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                     
-                
                 if self.livestream:
                     self.fs.udp_frame(self.frame)
 
@@ -226,6 +234,12 @@ class ThreadedVideoStream:
     
     def stop(self):
         self.stopped = True
+    
+    def setRed(self):
+        self.red = True
+    
+    def setBlue(self):
+        self.blue = True
     
     def finish(self):
         print("Camera stopped")

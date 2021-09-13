@@ -3,7 +3,7 @@ from monitor import *
 import time 
 from math import ceil
 import argparse  
-from servo import *
+#from servo import *
 
 if __name__ == "__main__":
     """# Arg parser for connecting to the vehicle
@@ -38,3 +38,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         myThread.finish()
     """
+    
