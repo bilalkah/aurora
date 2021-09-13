@@ -9,7 +9,7 @@ class myServo:
         self.min_us = min_us
         self.max_us = max_us
         self.us = 0
-        self.duty = 0
+        self.duty = 2
         self.setup()
     
     def setup(self):
@@ -20,7 +20,7 @@ class myServo:
     
     def change_duty(self, us):
         self.us = us
-        self.duty = 100*(us-self.min_us)/(self.max_us-self.min_us)
+        self.duty = 2+(us/18)
         self.pwm.ChangeDutyCycle(self.duty)
 
     def change_freq(self, freq):

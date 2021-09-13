@@ -23,11 +23,11 @@ if __name__ == "__main__":
     """
     servo = myServo()
     time.sleep(5)
-    servo.change_duty(1500)
+    servo.change_duty(45)
     time.sleep(5)
-    servo.change_duty(1000)
+    servo.change_duty(90)
     time.sleep(5)
-    servo.change_duty(2000)
+    servo.change_duty(135)
     time.sleep(5)
     """
     try:
