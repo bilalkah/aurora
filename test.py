@@ -20,7 +20,7 @@ if __name__ == "__main__":
     myThread = ThreadedVideoStream(vehicle = None, imwrite=True, imshow=True,livestream=True, s_address='127.0.0.1')
     myThread.setColor("blue")
     """
-    servo = Servo()
+    servo = myServo()
     time.sleep(5)
     servo.change_duty(1500)
     time.sleep(5)
