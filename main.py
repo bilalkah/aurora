@@ -10,6 +10,7 @@ import math
 import numpy as np
 import argparse  
 from monitor import *
+from servo import *
 
 # Count of program time
 programTime = time.time()
@@ -25,7 +26,9 @@ connection_string = args.connect
 # Vehicle connection
 vehicle = connectCopter(connection_string)
 
-
+# Servo connection
+aktuator = myServo()
+aktuator.change_duty(135)
 #------------------------------------------------------
 # Threading for monitor camera
 
@@ -110,6 +113,9 @@ for i in range(len(missions)):
             else:
                 print("Descending to release water.")
             
+            print("Aktuator opening..")
+            aktuator.change_duty(45)
+            
             for x in altArr:
                 fixPosition(vehicle, myThread.readLoc())
                 
@@ -122,8 +128,9 @@ for i in range(len(missions)):
                         break
                     time.sleep(1)
                 
+            print("Aktuator closing")
+            aktuator.change_duty(135)
             
-            time.sleep(10)
             
             
             vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, ascendAlt))

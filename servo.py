@@ -3,12 +3,9 @@ import RPi.GPIO as GPIO
 import time
 
 class myServo:
-    def __init__(self, pin=11, freq=50, min_us=1000, max_us=2000):
+    def __init__(self, pin=11, freq=50):
         self.pin = pin
         self.freq = freq
-        self.min_us = min_us
-        self.max_us = max_us
-        self.us = 0
         self.duty = 2
         self.setup()
     

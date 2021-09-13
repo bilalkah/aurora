@@ -16,19 +16,17 @@ if __name__ == "__main__":
 
 
     # Vehicle connection
-    vehicle = connectCopter(connection_string)"""
+    vehicle = connectCopter(connection_string)
     """
-    myThread = ThreadedVideoStream(vehicle = None, imwrite=True, imshow=True,livestream=True, s_address='127.0.0.1')
+    myThread = ThreadedVideoStream(vehicle = None, imwrite=True, livestream=True, s_address='192.168.43.233')
     myThread.setColor("blue")
     """
     servo = myServo()
-    time.sleep(5)
+    time.sleep(1)
     servo.change_duty(45)
-    time.sleep(5)
-    servo.change_duty(90)
-    time.sleep(5)
+    time.sleep(2)
     servo.change_duty(135)
-    time.sleep(5)
+    time.sleep(2)
     """
     try:
         while True:
@@ -38,5 +36,5 @@ if __name__ == "__main__":
                 
     except KeyboardInterrupt:
         myThread.finish()
-    """
+    
     

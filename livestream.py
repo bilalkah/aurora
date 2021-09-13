@@ -4,7 +4,7 @@ import struct
 import numpy as np
 
 MAX_DGRAM = 2**16
-
+adr = '192.168.43.233'
 def dump_buffer(s):
     while True:
         seg, addr = s.recvfrom(MAX_DGRAM)
@@ -16,7 +16,7 @@ def dump_buffer(s):
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(('127.0.0.1',12345))
+    s.bind((adr,12345))
     dat = b''
     dump_buffer(s)
     while True:
@@ -38,7 +38,7 @@ def main():
             print("hata, "+str(e))
             s.close()
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.bind(('127.0.0.1',12345))
+            s.bind((adr,12345))
             dat = b''
             dump_buffer(s)
 try:
