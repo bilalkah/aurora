@@ -7,6 +7,7 @@ from servo import *
 #from servo import *
 
 if __name__ == "__main__":
+    """
     # Arg parser for connecting to the vehicle
     parser = argparse.ArgumentParser(description='Control Copter and send commands in GUIDED mode ')
     parser.add_argument('--connect', 
@@ -22,14 +23,14 @@ if __name__ == "__main__":
     myThread.setColor("blue")
     """
     servo = myServo()
-    time.sleep(1)
-    servo.change_duty(45)
-    time.sleep(2)
-    servo.change_duty(135)
-    time.sleep(2)
-    """
+    
     try:
         while True:
+            time.sleep(1)
+            servo.change_duty(45)
+            time.sleep(5)
+            servo.change_duty(135)
+            time.sleep(2)
             print("Bekle")
             time.sleep(5)
             continue
