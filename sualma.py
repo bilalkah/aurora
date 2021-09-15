@@ -33,8 +33,8 @@ aktuator.change_duty(135)"""
 #------------------------------------------------------
 # Threading for monitor camera
 
-#myThread = ThreadedVideoStream(vehicle=vehicle, imwrite=True)
-#myThread.setColor("blue")
+myThread = ThreadedVideoStream(vehicle=vehicle, imwrite=True, imshow=True)
+myThread.setColor("red")
 
 #------------------------------------------------------
 
@@ -42,6 +42,7 @@ counterblue = False
 counterred = False
 trueBlue = 3
 trueRed = 2.5
+
 descendAlt = 4.0
 
 # GPS data of waypoints
@@ -57,13 +58,13 @@ missions = readmission("sualma.waypoints")
 
 # List that will contain blue and red pool's gps coordinates
 poolLocations = []
+poolLocations.append(LocationGlobal (missions[0][0],missions[0][1], missions[0][2]))
 start = time.time()
 # Arm in GUIDED mode and take of 10 alitude
 arm_and_takeoff(vehicle,"GUIDED",25)
 
 # Set ground speed for 10 m/s
 set_ground_speed(vehicle, 10)
-
 
 """
 Mission for loop
@@ -78,8 +79,8 @@ Between mission[1] and mission[2] the copter will fly
 for i in range(len(missions)):
     print("Mission "+str(i)+" started.")
     
-    """
-    if i == 2:
+    
+    if i == 5:
         set_ground_speed(vehicle, 5)
 
         for j in range(len(poolLocations)):
@@ -115,24 +116,22 @@ for i in range(len(missions)):
                 print("Descending to release water.")
             
             print("Aktuator opening..")
-            aktuator.change_duty(45)
+            #aktuator.change_duty(45)
             
-            for x in altArr:
+            for idx in range(1,len(altArr)):
                 fixPosition(vehicle, myThread.readLoc())
                 
-                vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, x))
+                vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, altArr[idx]))
                 
                 while True:
                     print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
-                    if vehicle.location.global_relative_frame.alt<=descendAlt*1.05: 
+                    if vehicle.location.global_relative_frame.alt<=altArr[idx]*1.1: 
                         print("Reached target altitude")
                         break
                     time.sleep(1)
                 
-            print("Aktuator closing")
+            #print("Aktuator closing")
             aktuator.change_duty(135)
-            
-            
             
             vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, ascendAlt))
             if j == 0:
@@ -145,7 +144,7 @@ for i in range(len(missions)):
                     print("Reached target altitude.")
                     break
                 time.sleep(1)
-        """
+        
 
     
             
@@ -164,7 +163,7 @@ for i in range(len(missions)):
     while vehicle.mode.name=="GUIDED":
         remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
         """
-        if i == 1 and j == 0 and counterblue is False:
+        if i == 0 and counterblue is False:
             returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc(),trueBlue)
             if returnVal is not None:
                 myThread.setColor("red")
@@ -172,54 +171,57 @@ for i in range(len(missions)):
                 print("*******************")
                 print("Blue area detected.")
                 print("*******************")
+                print("Blue Coords: %f %f %f", returnVal[0], returnVal[1], returnVal[2])
                 myThread.setBlue()
                 counterblue = True
                 myThread.setLoc()
                 time.sleep(1)
-                
-        elif i == 1 and j == 0 and counterred is False:
+        """      
+        if i == 3 and counterred is False:
             returnVal = get_relative_dNorth_dEast(vehicle,myThread.readLoc(),trueRed)
             if returnVal is not None:
                 poolLocations.append(returnVal)
                 print("*******************")
                 print("Red area detected.")
                 print("*******************")
+                print("Red Coords: ", returnVal.lat, returnVal.lon, returnVal.alt)
                 myThread.setRed()
                 counterred = True
-                time.sleep(1)"""
+                time.sleep(1)
                 
         
         print(" Distance to target: ", remainingDistance)
-            
         if remainingDistance<=targetDistance*0.05 or remainingDistance < 0.15: 
             print("Reached target.")
             break
         time.sleep(0.5)
+        
 stop = time.time()
 # Land the vehicle
-print("Landing..")
-vehicle.mode = VehicleMode("LAND")
+if vehicle.mode == "GUIDED":
+    print("Landing..")
+    vehicle.mode = VehicleMode("LAND")
 
-while True:
-        print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
-        if vehicle.location.global_relative_frame.alt<0.2: #Trigger just below target alt.
-            print("Landed")
-            break
+    while True:
+            print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
+            if vehicle.location.global_relative_frame.alt<0.2: #Trigger just below target alt.
+                print("Landed")
+                break
+            time.sleep(1)
+
+    # Print duty time
+    totaltime = time.time() - programTime
+    print("%d:%02d"%(totaltime//60,totaltime%60))
+
+    vehicle.armed = False
+    # Wait for disarming and close the connection
+    while vehicle.armed:
+        print("Waiting for disarming.")
         time.sleep(1)
+    print("Disarmed.")
 
-# Print duty time
-totaltime = time.time() - programTime
-print("%d:%02d"%(totaltime//60,totaltime%60))
+    vehicle.close()
+    print("Vehicle closed.")
 
-vehicle.armed = False
-# Wait for disarming and close the connection
-while vehicle.armed:
-    print("Waiting for disarming.")
-    time.sleep(1)
-print("Disarmed.")
-
-vehicle.close()
-print("Vehicle closed.")
-
-#myThread.finish()
-print(stop-start)
+    #myThread.finish()
+    print(stop-start)

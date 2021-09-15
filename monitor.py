@@ -180,9 +180,9 @@ class ThreadedVideoStream:
                     
                     # down - right corner
                     # print current time down right corner of self.frame
-                    cv2.putText(self.frame, ("Blue found: ", self.blue), (self.center[0]*2-90,self.center[1]*2-50), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    cv2.putText(self.frame, ("Blue found: "+ str(self.blue)), (self.center[0]*2-150,self.center[1]*2-50), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                         self.color["green"], 1, self.line, False)
-                    cv2.putText(self.frame, ("Red found: ", self.red), (self.center[0]*2-90,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
+                    cv2.putText(self.frame, ("Red found: " + str(self.red)), (self.center[0]*2-150,self.center[1]*2-30), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                         self.color["green"], 1, self.line, False)
                     cv2.putText(self.frame, time.strftime("%H:%M:%S"), (self.center[0]*2-90,self.center[1]*2-10), cv2.FONT_HERSHEY_SIMPLEX, self.fontscale, 
                         self.color["green"], 1, self.line, False)

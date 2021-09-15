@@ -143,8 +143,9 @@ def get_relative_dNorth_dEast(vehicle, info,trueSize):
     headingAngle = vehicle.heading
     (xg,yg,wg,hg,centerY,centerX) = info
     area51 = abs(calcSizePixel(centerX * 2, centerY * 2, vehicle.location.global_relative_frame.alt, trueSize))
+    
     print((wg)*(hg), "pixel2 detected.")
-    if (wg)*(hg) >= area51*0.9*0.9:
+    if (wg)*(hg) >= area51*0.95*0.95:
         objX = xg + wg//2
         objY = yg + hg//2
         lengthX = abs(centerX-objX)
@@ -215,7 +216,7 @@ def readmission(aFileName):
                 ln_autocontinue=int(linearray[11].strip())
                 cmd = Command( 0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue, ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6, ln_param7)
                 print(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue, ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6, ln_param7)
-                gpsData = [ln_param5, ln_param6, 10.0]
+                gpsData = [ln_param5, ln_param6, ln_param7]
                 missionlist.append(gpsData)
     return missionlist
 

@@ -3,11 +3,10 @@ from monitor import *
 import time 
 from math import ceil
 import argparse  
-from servo import *
 #from servo import *
 
 if __name__ == "__main__":
-    """
+    
     # Arg parser for connecting to the vehicle
     parser = argparse.ArgumentParser(description='Control Copter and send commands in GUIDED mode ')
     parser.add_argument('--connect', 
@@ -19,21 +18,15 @@ if __name__ == "__main__":
     # Vehicle connection
     vehicle = connectCopter(connection_string)
     
-    myThread = ThreadedVideoStream(vehicle = None, imwrite=True, livestream=True, s_address='192.168.43.233')
-    myThread.setColor("blue")
-    """
-    servo = myServo()
+    myThread = ThreadedVideoStream(vehicle = vehicle, imwrite=True)
+    myThread.setColor("red")
+    
+    
     
     try:
         while True:
-            time.sleep(1)
-            servo.change_duty(45)
+            print("bekle")
             time.sleep(5)
-            servo.change_duty(135)
-            time.sleep(2)
-            print("Bekle")
-            time.sleep(5)
-            continue
                 
     except KeyboardInterrupt:
         myThread.finish()
