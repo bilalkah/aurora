@@ -10,7 +10,7 @@ import math
 import numpy as np
 import argparse  
 from monitor import *
-#from servo import *
+from servo import *
 
 # Count of program time
 programTime = time.time()
@@ -27,14 +27,14 @@ connection_string = args.connect
 vehicle = connectCopter(connection_string)
 
 # Servo connection
-"""
+
 aktuator = myServo()
-aktuator.change_duty(135)"""
+aktuator.change_duty(135)
 #------------------------------------------------------
 # Threading for monitor camera
 
-myThread = ThreadedVideoStream(vehicle=vehicle, imwrite=True, imshow=True)
-myThread.setColor("red")
+myThread = ThreadedVideoStream(vehicle=vehicle, imwrite=True)
+#myThread.setColor("red")
 
 #------------------------------------------------------
 
@@ -43,7 +43,7 @@ counterred = False
 trueBlue = 3
 trueRed = 2.5
 
-descendAlt = 4.0
+descendAlt = 2.0
 
 # GPS data of waypoints
 # [0]: latitude
@@ -61,7 +61,7 @@ poolLocations = []
 poolLocations.append(LocationGlobal (missions[0][0],missions[0][1], missions[0][2]))
 start = time.time()
 # Arm in GUIDED mode and take of 10 alitude
-arm_and_takeoff(vehicle,"GUIDED",25)
+arm_and_takeoff(vehicle,"GUIDED",15)
 
 # Set ground speed for 10 m/s
 set_ground_speed(vehicle, 10)
@@ -79,7 +79,11 @@ Between mission[1] and mission[2] the copter will fly
 for i in range(len(missions)):
     print("Mission "+str(i)+" started.")
     
-    
+    if i == 3:
+        myThread.setColor("red")
+        set_ground_speed(vehicle, 1.5)
+    else:
+        set_ground_speed(vehicle, 10)
     if i == 5:
         set_ground_speed(vehicle, 5)
 
@@ -87,15 +91,17 @@ for i in range(len(missions)):
             
             if j == 0:
                 myThread.setColor("blue")
+                descendAlt = 2
             elif j == 1:
                 myThread.setColor("red")
+                descendAlt = 3
             time.sleep(0.5)
             
             
             targetLocation = poolLocations[j]
             vehicle.simple_goto(targetLocation)
             targetDistance = get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
-
+            lat,lon,alt = targetLocation.lat,targetLocation.lon,targetLocation.alt
             
             while vehicle.mode.name=="GUIDED": 
 
@@ -108,7 +114,7 @@ for i in range(len(missions)):
             
             
             ascendAlt = vehicle.location.global_relative_frame.alt
-            altArr = np.linspace(ascendAlt, descendAlt, num=3)
+            altArr = np.linspace(ascendAlt, descendAlt, num=4)
             
             if j == 0:
                 print("Descending to get water.")
@@ -116,12 +122,12 @@ for i in range(len(missions)):
                 print("Descending to release water.")
             
             print("Aktuator opening..")
-            #aktuator.change_duty(45)
-            
+            aktuator.change_duty(45)
+            time.sleep(2)
             for idx in range(1,len(altArr)):
                 fixPosition(vehicle, myThread.readLoc())
-                
-                vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, altArr[idx]))
+                print(altArr[idx])
+                vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, altArr[idx]))
                 
                 while True:
                     print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
@@ -129,9 +135,14 @@ for i in range(len(missions)):
                         print("Reached target altitude")
                         break
                     time.sleep(1)
-                
-            #print("Aktuator closing")
+            print("Brake mod")
+            vehicle.mode = VehicleMode("BRAKE")
+            time.sleep(1)
+            print("Aktuator closing")
             aktuator.change_duty(135)
+            time.sleep(2)
+            vehicle.mode = VehicleMode("GUIDED")
+            time.sleep(1)
             
             vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, ascendAlt))
             if j == 0:
@@ -187,6 +198,7 @@ for i in range(len(missions)):
                 print("Red Coords: ", returnVal.lat, returnVal.lon, returnVal.alt)
                 myThread.setRed()
                 counterred = True
+                set_ground_speed(vehicle, 10)
                 time.sleep(1)
                 
         

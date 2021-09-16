@@ -128,7 +128,7 @@ def fixPosition(vehicle, info):
             #print "DEBUG: mode: %s" % vehicle.mode.name
             remainingDistance=get_distance_metres(vehicle.location.global_relative_frame, targetLocation)
             print("Distance to target: ", remainingDistance)
-            if remainingDistance<=targetDistance*0.01: #Just below target, in case of undershoot.
+            if remainingDistance<=targetDistance*0.05 or remainingDistance <= 0.3: #Just below target, in case of undershoot.
                 print("Reached target")
                 break;
             time.sleep(2)
