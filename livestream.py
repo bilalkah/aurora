@@ -4,7 +4,7 @@ import struct
 import numpy as np
 
 MAX_DGRAM = 2**16
-adr = '192.168.43.233'
+adr = '192.168.43.103'
 def dump_buffer(s):
     while True:
         seg, addr = s.recvfrom(MAX_DGRAM)
@@ -15,26 +15,25 @@ def dump_buffer(s):
 
 def process(img):
     imgnew = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
+    #mat = imgnew[440:480,:,:] 
     mat = imgnew[440:480,:,:] 
 
-    l = np.array([160,50,50])
-    u = np.array([180,255,255])
+    l = np.array([0,0,0])
+    u = np.array([360,150,150])
     avg = mat.mean(axis=0).mean(axis=0)
     
     if(avg[0] > l[0] and avg[0] < u[1] and
     avg[1] > l[1] and avg[1] < u[1] and
     avg[2] > l[2] and avg[2] < u[2]):
         cv2.putText(img, "!!! SU BULUNDU !!!", (img.shape[0]//2-200, img.shape[1]//2-80), cv2.FONT_HERSHEY_SIMPLEX, 2, 
-                 (0,255,0), 3, cv2.LINE_AA, False)
+                (0,255,0), 3, cv2.LINE_AA, False)
     else:
         cv2.putText(img, "SU ARANIYOR", (img.shape[0]//2-120, img.shape[1]//2-80), cv2.FONT_HERSHEY_SIMPLEX, 2, 
-                 (0,250,220), 2, cv2.LINE_AA, False)
+                (0,250,220), 2, cv2.LINE_AA, False)
 
-
-    mat1 = img[440:480,:,:] 
+    mat1 = img[440:470,:,:] 
     avg1 = mat1.mean(axis=0).mean(axis=0)
-    img = cv2.rectangle(img, (0,440), (640,480), avg1, -1)
+    img = cv2.rectangle(img, (0,440), (640,480), (0,0,0), -1)
     return img
 
 def main():
@@ -50,9 +49,11 @@ def main():
             else:
                 dat += seg[1:]
                 img = cv2.imdecode(np.frombuffer(dat, dtype=np.uint8), 1)
-                cv2.imshow("from drone", img)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                if(img is not None):
+                    img = process(img)
+                    cv2.imshow("from drone", img)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
                 dat = b''
         except KeyboardInterrupt:
             s.close()

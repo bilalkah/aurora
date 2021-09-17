@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # Vehicle connection
     vehicle = connectCopter(connection_string)
     
-    myThread = ThreadedVideoStream(vehicle = vehicle, imwrite=True)
+    myThread = ThreadedVideoStream(vehicle = vehicle, imwrite=False, livestream=True, s_address="192.168.43.103")
     myThread.setColor("red")
     
     

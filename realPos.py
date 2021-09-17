@@ -117,8 +117,8 @@ def waterSense(img):
     #mat = imgnew[440:480,:,:] 
     mat = imgnew[440:480,:,:] 
 
-    l = np.array([160,50,50])
-    u = np.array([180,255,255])
+    l = np.array([0,0,0])
+    u = np.array([360,125,125])
     avg = mat.mean(axis=0).mean(axis=0)
     
     if(avg[0] > l[0] and avg[0] < u[1] and
