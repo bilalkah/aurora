@@ -4,7 +4,7 @@ import struct
 import numpy as np
 
 MAX_DGRAM = 2**16
-adr = '192.168.43.103'
+adr = '192.168.43.233'
 def dump_buffer(s):
     while True:
         seg, addr = s.recvfrom(MAX_DGRAM)

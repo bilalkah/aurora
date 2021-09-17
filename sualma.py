@@ -130,9 +130,11 @@ for i in range(len(missions)):
                 vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, altArr[idx]))
                 
                 while True:
+                    """
                     if j == 0 and waterSense(myThread.read()[1]):
                         print("Water detected.")
                         break
+                    """
                     print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
                     if vehicle.location.global_relative_frame.alt<=altArr[idx]*1.1: 
                         print("Reached target altitude")
