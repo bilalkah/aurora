@@ -124,7 +124,7 @@ for i in range(len(missions)):
             print("Aktuator opening..")
             aktuator.change_duty(45)
             time.sleep(2)
-            for idx in range(1,len(altArr)):
+            for idx in range(len(altArr)):
                 fixPosition(vehicle, myThread.readLoc())
                 print(altArr[idx])
                 vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, altArr[idx]))
