@@ -126,11 +126,13 @@ def waterSense(img):
     avg[2] > l[2] and avg[2] < u[2]):
         cv2.putText(img, "!!! SU BULUNDU !!!", (img.shape[0]//2-200, img.shape[1]//2-80), cv2.FONT_HERSHEY_SIMPLEX, 2, 
                 (0,255,0), 3, cv2.LINE_AA, False)
+        return True
     else:
         cv2.putText(img, "SU ARANIYOR", (img.shape[0]//2-120, img.shape[1]//2-80), cv2.FONT_HERSHEY_SIMPLEX, 2, 
                 (0,250,220), 2, cv2.LINE_AA, False)
+        return False
 
-    mat1 = img[440:470,:,:] 
-    avg1 = mat1.mean(axis=0).mean(axis=0)
-    img = cv2.rectangle(img, (0,440), (640,480), (0,0,0), -1)
-    return img
+    #mat1 = img[440:470,:,:] 
+    #avg1 = mat1.mean(axis=0).mean(axis=0)
+    #img = cv2.rectangle(img, (0,440), (640,480), (0,0,0), -1)
+    #return img
