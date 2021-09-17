@@ -64,7 +64,7 @@ start = time.time()
 arm_and_takeoff(vehicle,"GUIDED",15)
 
 # Set ground speed for 10 m/s
-set_ground_speed(vehicle, 10)
+set_ground_speed(vehicle, 5)
 
 """
 Mission for loop
@@ -82,8 +82,8 @@ for i in range(len(missions)):
     if i == 3:
         myThread.setColor("red")
         set_ground_speed(vehicle, 1.5)
-    else:
-        set_ground_speed(vehicle, 10)
+    elif i == 4:
+        set_ground_speed(vehicle, 5)
     if i == 5:
         set_ground_speed(vehicle, 5)
 
@@ -198,7 +198,7 @@ for i in range(len(missions)):
                 print("Red Coords: ", returnVal.lat, returnVal.lon, returnVal.alt)
                 myThread.setRed()
                 counterred = True
-                set_ground_speed(vehicle, 10)
+                set_ground_speed(vehicle, 5)
                 time.sleep(1)
                 
         
