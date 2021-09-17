@@ -6,7 +6,7 @@ import argparse
 #from servo import *
 
 if __name__ == "__main__":
-    
+    """
     # Arg parser for connecting to the vehicle
     parser = argparse.ArgumentParser(description='Control Copter and send commands in GUIDED mode ')
     parser.add_argument('--connect', 
@@ -17,8 +17,8 @@ if __name__ == "__main__":
 
     # Vehicle connection
     vehicle = connectCopter(connection_string)
-    
-    myThread = ThreadedVideoStream(vehicle = vehicle, imwrite=False, livestream=True, s_address="192.168.43.103")
+    """
+    myThread = ThreadedVideoStream(vehicle = vehicle, imwrite=False, livestream=True, s_address="192.168.43.233")
     myThread.setColor("red")
     
     
