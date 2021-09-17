@@ -91,7 +91,7 @@ for i in range(len(missions)):
             
             if j == 0:
                 myThread.setColor("blue")
-                descendAlt = 2
+                descendAlt = 1.5
             elif j == 1:
                 myThread.setColor("red")
                 descendAlt = 3
@@ -130,19 +130,23 @@ for i in range(len(missions)):
                 vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, altArr[idx]))
                 
                 while True:
+                    if j == 0 and waterSense(myThread.read()[1]):
+                        print("Water detected.")
+                        break
                     print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
                     if vehicle.location.global_relative_frame.alt<=altArr[idx]*1.1: 
                         print("Reached target altitude")
                         break
                     time.sleep(1)
-            print("Brake mod")
-            vehicle.mode = VehicleMode("BRAKE")
-            time.sleep(1)
-            print("Aktuator closing")
-            aktuator.change_duty(135)
-            time.sleep(2)
-            vehicle.mode = VehicleMode("GUIDED")
-            time.sleep(1)
+            if vehicle.mode == "GUIDED":
+                print("Brake mod")
+                vehicle.mode = VehicleMode("BRAKE")
+                time.sleep(1)
+                print("Aktuator closing")
+                aktuator.change_duty(135)
+                time.sleep(2)
+                vehicle.mode = VehicleMode("GUIDED")
+                time.sleep(1)
             
             vehicle.simple_goto(LocationGlobalRelative (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, ascendAlt))
             if j == 0:
