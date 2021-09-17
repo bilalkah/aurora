@@ -13,6 +13,29 @@ def dump_buffer(s):
             print("finish emptying buffer")
             break
 
+def process(img):
+    imgnew = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    mat = imgnew[440:480,:,:] 
+
+    l = np.array([160,50,50])
+    u = np.array([180,255,255])
+    avg = mat.mean(axis=0).mean(axis=0)
+    
+    if(avg[0] > l[0] and avg[0] < u[1] and
+    avg[1] > l[1] and avg[1] < u[1] and
+    avg[2] > l[2] and avg[2] < u[2]):
+        cv2.putText(img, "!!! SU BULUNDU !!!", (img.shape[0]//2-200, img.shape[1]//2-80), cv2.FONT_HERSHEY_SIMPLEX, 2, 
+                 (0,255,0), 3, cv2.LINE_AA, False)
+    else:
+        cv2.putText(img, "SU ARANIYOR", (img.shape[0]//2-120, img.shape[1]//2-80), cv2.FONT_HERSHEY_SIMPLEX, 2, 
+                 (0,250,220), 2, cv2.LINE_AA, False)
+
+
+    mat1 = img[440:480,:,:] 
+    avg1 = mat1.mean(axis=0).mean(axis=0)
+    img = cv2.rectangle(img, (0,440), (640,480), avg1, -1)
+    return img
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

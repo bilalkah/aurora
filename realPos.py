@@ -83,9 +83,9 @@ def process(loc, altitude=1):
      obj_width, obj_height,
      center_x, center_y
     ) = loc
-    s_width = 0.00376 # m
-    s_height = 0.00274 # m
-    focal = 0.00360 # m
+    s_width = 0.00368 # m
+    s_height = 0.00276 # m
+    focal = 0.00304 # m
     
     width = center_x * 2
     height = center_y * 2
