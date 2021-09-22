@@ -49,10 +49,6 @@ descendAlt = 2.0
 # [0]: latitude
 # [1]: longitude
 # [2]: altitude
-# mission-2-1.waypoints = from start to beginnig of pool areas
-# mission-2-2.waypoints = from pool areas to pool areas
-# mission-2-3.waypoints = from pool areas to end
-
 missions = readmission("sualma.waypoints")
 
 
@@ -60,20 +56,11 @@ missions = readmission("sualma.waypoints")
 poolLocations = []
 poolLocations.append(LocationGlobal (missions[0][0],missions[0][1], missions[0][2]))
 start = time.time()
-# Arm in GUIDED mode and take of 10 alitude
+# Arm in GUIDED mode and take of 15 alitude
 arm_and_takeoff(vehicle,"GUIDED",15)
 
-# Set ground speed for 10 m/s
+# Set ground speed for 5 m/s
 set_ground_speed(vehicle, 5)
-
-"""
-Mission for loop
-Between mission[0] and mission[1] the copter will fly to each waypoint and search for the red and blue pools
-Between mission[1] and mission[2] the copter will fly 
-    First blue pool area and it will get lower and wait until it takes water and it will get higher
-    Second red pool area and it will get lower and wait until it releases water and it will get higher
-    After it will fly to the end of the mission
-"""
 
 
 for i in range(len(missions)):

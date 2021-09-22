@@ -4,3 +4,4 @@ mav*
 .vscode
 test/
 *.waypoints*
+vehicle-state.py
