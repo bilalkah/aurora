@@ -3,3 +3,4 @@ mav*
 *.avi
 .vscode
 test/
+*.waypoints*

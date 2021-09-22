@@ -19,7 +19,6 @@ class myServo:
         self.us = us
         self.duty = 2+(us/18)
         self.pwm.ChangeDutyCycle(self.duty)
-        
 
     def change_freq(self, freq):
         self.freq = freq
